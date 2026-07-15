@@ -1,13 +1,13 @@
 services:
   lighting-dashboard:
-    image: nginx:alpine
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: lighting-dashboard:latest
     container_name: lighting-dashboard
     restart: unless-stopped
     ports:
       - "${DASHBOARD_PORT:-1112}:80"
-    volumes:
-      - ./lighting_dashboard.html:/usr/share/nginx/html/lighting_dashboard.html:ro
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/health || exit 1"]
       interval: 30s

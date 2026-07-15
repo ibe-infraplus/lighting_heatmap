@@ -46,6 +46,31 @@ python -m http.server 8000
 docker compose up -d
 ```
 
+Compose จะ build Dashboard จาก `test.xlsx` ด้วย `generate_lighting_dashboard.py`
+ภายใน Docker image โดยอัตโนมัติ
+
+## อัปเดตจาก GitHub บน Ubuntu
+
+หลัง commit และ push จาก VS Code ไปยัง branch `main` แล้ว ให้รันบน Ubuntu:
+
+```bash
+cd ~/lighting_dashboard_project
+bash deploy.sh
+```
+
+สคริปต์จะดึงโค้ดด้วย `git pull --ff-only`, build image ใหม่, recreate container
+และรอจน healthcheck เป็น `healthy` หาก server มีไฟล์ที่แก้ค้างอยู่ สคริปต์จะหยุดก่อน
+เพื่อป้องกันการเขียนทับไฟล์
+
+คำสั่งแบบ manual ที่ให้ผลเดียวกัน:
+
+```bash
+cd ~/lighting_dashboard_project
+git pull --ff-only origin main
+docker compose up -d --build --remove-orphans
+docker compose ps
+```
+
 Dashboard จะเปิดที่:
 
 ```text
