@@ -592,43 +592,59 @@ HTML_TEMPLATE = r'''<!doctype html>
       border: 0; background: transparent; color: #475467; cursor: pointer;
       padding: 8px 11px; border-radius: 8px; font-size: 12px; font-weight: 700; white-space: nowrap;
     }
-    .mode-button.active { background: var(--primary); color: white; }
+    .mode-button.active { background: #0b57d0; color: white; box-shadow: 0 2px 6px rgba(11,87,208,.28); }
     .layer-controls {
       position: absolute; top: 16px; right: 16px; z-index: 4;
-      display: grid; gap: 8px; padding: 10px 12px;
-      background: rgba(255,255,255,.96); border: 1px solid var(--line);
-      border-radius: 12px; box-shadow: 0 8px 24px rgba(15,23,42,.16);
+      display: grid; gap: 10px; padding: 12px 14px;
+      background: rgba(255,255,255,.97); border: 0;
+      border-radius: 18px; box-shadow: 0 2px 4px rgba(60,64,67,.16), 0 8px 24px rgba(60,64,67,.14);
       font-size: 12px; font-weight: 700;
     }
-    .layer-controls label { display: flex; align-items: center; gap: 7px; cursor: pointer; white-space: nowrap; }
+    .layer-controls label { display: flex; align-items: center; gap: 9px; cursor: pointer; white-space: nowrap; }
+    .layer-controls input { width: 17px; height: 17px; accent-color: #0b57d0; }
     .repair-filter-trigger {
-      position: absolute; top: 126px; right: 16px; z-index: 5;
-      border: 1px solid #b2ccff; border-radius: 11px; padding: 9px 12px;
-      color: #1849a9; background: rgba(255,255,255,.97); cursor: pointer;
-      box-shadow: 0 8px 24px rgba(15,23,42,.16); font-size: 12px; font-weight: 800;
+      position: absolute; top: 50%; right: 0; z-index: 8; transform: translateY(-50%);
+      display: flex; align-items: center; gap: 7px; min-height: 52px; max-width: 190px;
+      border: 0; border-radius: 18px 0 0 18px; padding: 8px 12px 8px 9px;
+      color: #0b57d0; background: #d3e3fd; cursor: pointer;
+      box-shadow: -2px 3px 8px rgba(60,64,67,.22), -8px 8px 24px rgba(60,64,67,.13);
+      font-size: 12px; font-weight: 800; transition: background .2s ease, color .2s ease, transform .2s ease;
     }
-    .repair-filter-trigger.active { color: #fff; background: var(--primary); border-color: var(--primary); }
+    .repair-filter-trigger:hover { background: #c2d7f7; transform: translateY(-50%) translateX(-3px); }
+    .repair-filter-trigger.active { color: #fff; background: #0b57d0; }
+    .filter-trigger-arrow { display: grid; place-items: center; width: 28px; height: 28px; flex: 0 0 28px; border-radius: 50%; background: rgba(255,255,255,.7); color: #0b57d0; font-size: 24px; line-height: 1; }
+    .repair-filter-trigger.active .filter-trigger-arrow { background: rgba(255,255,255,.18); color: #fff; }
+    .filter-trigger-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .drawer-backdrop {
       position: absolute; inset: 0; z-index: 18; opacity: 0; visibility: hidden;
-      background: rgba(15,23,42,.18); transition: opacity .25s ease, visibility .25s ease;
+      background: rgba(32,33,36,.28); backdrop-filter: blur(1px); transition: opacity .3s ease, visibility .3s ease;
     }
     .drawer-backdrop.open { opacity: 1; visibility: visible; }
     .repair-drawer {
-      position: absolute; top: 0; right: 0; bottom: 0; z-index: 20; width: min(360px, 92vw);
-      display: flex; flex-direction: column; background: #fff; box-shadow: -14px 0 36px rgba(15,23,42,.22);
-      transform: translateX(105%); transition: transform .28s ease;
+      position: absolute; top: 10px; right: 10px; bottom: 10px; z-index: 20; width: min(380px, calc(100vw - 28px));
+      display: flex; flex-direction: column; overflow: hidden; background: #fefbff;
+      border-radius: 28px 0 0 28px; box-shadow: -4px 0 12px rgba(60,64,67,.18), -18px 0 46px rgba(60,64,67,.16);
+      transform: translateX(calc(100% + 18px)); transition: transform .34s cubic-bezier(.2,0,0,1);
     }
     .repair-drawer.open { transform: translateX(0); }
-    .drawer-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px; border-bottom: 1px solid var(--line); }
-    .drawer-head h2 { margin: 0; font-size: 17px; }
-    .drawer-close { border: 0; border-radius: 9px; padding: 7px 10px; background: #f2f4f7; cursor: pointer; font-weight: 800; }
-    .drawer-body { flex: 1; padding: 18px; overflow: auto; }
-    .drawer-body label { display: block; margin-bottom: 8px; color: #344054; font-size: 13px; font-weight: 800; }
-    .drawer-body select { width: 100%; min-height: 46px; padding: 9px 10px; border: 1px solid #cfd8e3; border-radius: 10px; background: #fff; color: var(--ink); }
-    .drawer-hint { margin-top: 9px; color: var(--muted); font-size: 11px; line-height: 1.5; }
-    .drawer-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; padding: 16px 18px; border-top: 1px solid var(--line); }
-    .drawer-actions button { border: 1px solid var(--line); border-radius: 10px; padding: 10px; cursor: pointer; font-weight: 800; }
-    .drawer-actions .apply { color: #fff; background: var(--primary); border-color: var(--primary); }
+    .drawer-head { display: flex; align-items: center; gap: 12px; padding: 20px 18px 16px; background: #eef3fc; border-bottom: 1px solid #d7e3f6; }
+    .drawer-title { flex: 1; min-width: 0; }
+    .drawer-head h2 { margin: 0; color: #1f1f1f; font-size: 18px; font-weight: 700; }
+    .drawer-head p { margin: 3px 0 0; color: #5f6368; font-size: 11px; }
+    .drawer-close { width: 42px; height: 42px; border: 0; border-radius: 50%; padding: 0; color: #0b57d0; background: #d3e3fd; cursor: pointer; font-size: 26px; line-height: 1; transition: background .2s ease, transform .2s ease; }
+    .drawer-close:hover { background: #c2d7f7; transform: translateX(2px); }
+    .drawer-body { flex: 1; padding: 24px 20px; overflow: auto; }
+    .drawer-body label { display: block; margin-bottom: 9px; color: #3c4043; font-size: 12px; font-weight: 700; }
+    .material-select { position: relative; }
+    .drawer-body select { width: 100%; min-height: 56px; appearance: none; padding: 14px 44px 14px 16px; border: 1px solid #747775; border-radius: 12px; outline: none; background: #fefbff; color: #1f1f1f; font-size: 14px; transition: border .2s ease, box-shadow .2s ease; }
+    .drawer-body select:focus { border: 2px solid #0b57d0; box-shadow: 0 0 0 3px rgba(11,87,208,.10); }
+    .select-arrow { position: absolute; top: 50%; right: 16px; transform: translateY(-50%); color: #444746; pointer-events: none; font-size: 17px; }
+    .drawer-hint { margin-top: 12px; padding: 12px 14px; border-radius: 12px; color: #444746; background: #f0f4f9; font-size: 11px; line-height: 1.55; }
+    .drawer-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 16px 20px 20px; background: #fefbff; border-top: 1px solid #e1e3e1; }
+    .drawer-actions button { min-height: 44px; border: 0; border-radius: 22px; padding: 10px 16px; cursor: pointer; font-weight: 800; transition: box-shadow .2s ease, transform .15s ease; }
+    .drawer-actions button:hover { transform: translateY(-1px); }
+    .drawer-actions .clear { color: #0b57d0; background: #e8f0fe; }
+    .drawer-actions .apply { color: #fff; background: #0b57d0; box-shadow: 0 2px 6px rgba(11,87,208,.30); }
     .district-marker { display: grid; justify-items: center; cursor: pointer; font-family: "Noto Sans Thai", "Leelawadee UI", Tahoma, sans-serif; }
     .district-marker-name {
       margin-bottom: 3px; padding: 3px 7px; border-radius: 7px;
@@ -819,20 +835,23 @@ HTML_TEMPLATE = r'''<!doctype html>
           <label><input id="heatmapToggle" type="checkbox" checked /> แสดง Heatmap</label>
           <label><input id="poleLocationToggle" type="checkbox" /> แสดงตำแหน่งเสา</label>
         </div>
-        <button class="repair-filter-trigger" id="repairFilterOpen" aria-controls="repairFilterDrawer" aria-expanded="false">วิธีการแก้ไข</button>
+        <button class="repair-filter-trigger" id="repairFilterOpen" aria-controls="repairFilterDrawer" aria-expanded="false">
+          <span class="filter-trigger-arrow" aria-hidden="true">‹</span>
+          <span class="filter-trigger-label" id="repairFilterOpenLabel">วิธีการแก้ไข</span>
+        </button>
         <div class="drawer-backdrop" id="repairFilterBackdrop"></div>
         <aside class="repair-drawer" id="repairFilterDrawer" aria-hidden="true">
           <div class="drawer-head">
-            <h2>ตัวกรองวิธีการแก้ไข</h2>
-            <button class="drawer-close" id="repairFilterClose" type="button">ปิด ✕</button>
+            <div class="drawer-title"><h2>วิธีการแก้ไข</h2><p>กรองข้อมูลบนแผนที่ทุกโหมด</p></div>
+            <button class="drawer-close" id="repairFilterClose" type="button" aria-label="ปิดตัวกรอง">›</button>
           </div>
           <div class="drawer-body">
             <label for="repairMethodDrawerSelect">เลือกวิธีการแก้ไข</label>
-            <select id="repairMethodDrawerSelect"></select>
-            <div class="drawer-hint">ตัวกรองนี้จะใช้กับข้อมูลทุกโหมดบนแผนที่</div>
+            <div class="material-select"><select id="repairMethodDrawerSelect"></select><span class="select-arrow">▼</span></div>
+            <div class="drawer-hint">เมื่อกดใช้ตัวกรอง แผนที่ Heatmap จุดเสา และยอดรวมรายเขตจะคำนวณใหม่ตามวิธีที่เลือก</div>
           </div>
           <div class="drawer-actions">
-            <button id="repairFilterClear" type="button">ล้างตัวกรอง</button>
+            <button class="clear" id="repairFilterClear" type="button">ล้างตัวกรอง</button>
             <button class="apply" id="repairFilterApply" type="button">ใช้ตัวกรอง</button>
           </div>
         </aside>
@@ -917,7 +936,7 @@ function syncRepairFilterButton() {
   const value = selected("methodFilter");
   const active = value !== ALL_VALUE;
   el("repairFilterOpen").classList.toggle("active", active);
-  el("repairFilterOpen").textContent = active ? `วิธีแก้ไข: ${value}` : "วิธีการแก้ไข";
+  el("repairFilterOpenLabel").textContent = active ? value : "วิธีการแก้ไข";
   el("repairFilterOpen").title = active ? value : "เปิดตัวกรองวิธีการแก้ไข";
 }
 
