@@ -211,6 +211,8 @@ PLACEHOLDER_POLE_CODES = {"", "_", "-", "0", "00", "000", "ไม่ระบุ
 NO_REPAIR_METHODS = {
     "", "-", "ไม่ระบุ", "ไม่เสียหาย", "ไม่พบความเสียหาย", "ตรวจสอบแล้วปกติ", "ปกติ"
 }
+EXCLUDED_NON_FAILURE_METHODS = {"ไม่เสียหาย", "ไม่พบความเสียหาย", "ตรวจสอบแล้วปกติ", "ปกติ"}
+EXCLUDED_NON_FAILURE_METHODS_CASEFOLD = {value.casefold() for value in EXCLUDED_NON_FAILURE_METHODS}
 
 
 def clean_header(value: Any) -> str:
@@ -345,6 +347,7 @@ def load_records(rows: list[list[Any]]) -> tuple[list[dict[str, Any]], dict[str,
     outside_bangkok = 0
     placeholder_codes = 0
     missing_methods_completed_outage = 0
+    excluded_non_failure_rows = 0
 
     for source_row_no, row in enumerate(nonempty_rows[1:], start=2):
         if not any(clean_text(v) for v in row):
@@ -354,6 +357,11 @@ def load_records(rows: list[list[Any]]) -> tuple[list[dict[str, Any]], dict[str,
         for field in FIELD_ALIASES:
             record.setdefault(field, "")
         record["district"] = normalize_bangkok_district(record.get("district", ""))
+
+        method = clean_text(record.get("repair_method", ""))
+        if method.casefold() in EXCLUDED_NON_FAILURE_METHODS_CASEFOLD:
+            excluded_non_failure_rows += 1
+            continue
 
         lat = parse_float(row_value(row, mapping.get("lat")))
         lon = parse_float(row_value(row, mapping.get("lon")))
@@ -374,7 +382,6 @@ def load_records(rows: list[list[Any]]) -> tuple[list[dict[str, Any]], dict[str,
         is_outage = contains_any(symptom_all, ["ไฟดับ", "ไม่ติด", "ดับ", "ไม่มีแสง"])
         is_completed = contains_any(record.get("complaint_status", ""), ["เสร็จ", "สำเร็จ", "ปิดงาน", "แล้วเสร็จ"])
 
-        method = clean_text(record.get("repair_method", ""))
         meaningful_method = method.lower() not in {v.lower() for v in NO_REPAIR_METHODS}
         post_status = clean_text(record.get("post_repair_status", ""))
         if has_post_repair_status and post_status:
@@ -423,7 +430,9 @@ def load_records(rows: list[list[Any]]) -> tuple[list[dict[str, Any]], dict[str,
     missing_district = sum(1 for r in records if not r.get("district"))
 
     quality = {
+        "source_rows": len(nonempty_rows) - 1,
         "input_rows": len(records),
+        "excluded_non_failure_rows": excluded_non_failure_rows,
         "valid_coordinate_rows": sum(1 for r in records if r["valid_coord"]),
         "invalid_coordinate_rows": invalid_coords,
         "outside_bangkok_rows": outside_bangkok,
@@ -1626,7 +1635,11 @@ def main() -> int:
         return 1
 
     print(f"สร้าง Dashboard สำเร็จ: {output_path}")
-    print(f"ข้อมูล: {len(records):,} แถว | พิกัดใช้ได้: {quality['valid_coordinate_rows']:,}")
+    print(
+        f"ข้อมูลหลัง Cleaning: {len(records):,} แถว | "
+        f"ตัดรายการไม่เสียหาย: {quality['excluded_non_failure_rows']:,} แถว | "
+        f"พิกัดใช้ได้: {quality['valid_coordinate_rows']:,}"
+    )
     print("หลักการนับ: ยึดรหัสเสาไฟและรวมข้อร้องเรียนที่อยู่ในรอบซ่อมเดียวกัน")
     return 0
 
