@@ -1252,10 +1252,12 @@ function configureMode(mode) {
     outagePoints: {property:"outage_count", pointMode:true},
     outageHeat: {property:"outage_count", pointMode:false},
     repairPoints: {property:"repair_count", pointMode:true},
-    repairHeat: {property:"repair_count", pointMode:false}
+    repairHeat: {property:"repair_count", pointMode:false, minimum:2}
   };
   const config = modes[mode] || modes.complaintHeat;
-  const filter = [">",["get",config.property],0];
+  const filter = config.minimum === 2
+    ? [">=",["get",config.property],2]
+    : [">",["get",config.property],0];
   el("heatmapToggle").checked = !config.pointMode;
   setLayerVisibility("repair-heat", !config.pointMode);
   setLayerVisibility("event-points", false);
