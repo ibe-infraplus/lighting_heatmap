@@ -601,6 +601,34 @@ HTML_TEMPLATE = r'''<!doctype html>
       font-size: 12px; font-weight: 700;
     }
     .layer-controls label { display: flex; align-items: center; gap: 7px; cursor: pointer; white-space: nowrap; }
+    .repair-filter-trigger {
+      position: absolute; top: 126px; right: 16px; z-index: 5;
+      border: 1px solid #b2ccff; border-radius: 11px; padding: 9px 12px;
+      color: #1849a9; background: rgba(255,255,255,.97); cursor: pointer;
+      box-shadow: 0 8px 24px rgba(15,23,42,.16); font-size: 12px; font-weight: 800;
+    }
+    .repair-filter-trigger.active { color: #fff; background: var(--primary); border-color: var(--primary); }
+    .drawer-backdrop {
+      position: absolute; inset: 0; z-index: 18; opacity: 0; visibility: hidden;
+      background: rgba(15,23,42,.18); transition: opacity .25s ease, visibility .25s ease;
+    }
+    .drawer-backdrop.open { opacity: 1; visibility: visible; }
+    .repair-drawer {
+      position: absolute; top: 0; right: 0; bottom: 0; z-index: 20; width: min(360px, 92vw);
+      display: flex; flex-direction: column; background: #fff; box-shadow: -14px 0 36px rgba(15,23,42,.22);
+      transform: translateX(105%); transition: transform .28s ease;
+    }
+    .repair-drawer.open { transform: translateX(0); }
+    .drawer-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px; border-bottom: 1px solid var(--line); }
+    .drawer-head h2 { margin: 0; font-size: 17px; }
+    .drawer-close { border: 0; border-radius: 9px; padding: 7px 10px; background: #f2f4f7; cursor: pointer; font-weight: 800; }
+    .drawer-body { flex: 1; padding: 18px; overflow: auto; }
+    .drawer-body label { display: block; margin-bottom: 8px; color: #344054; font-size: 13px; font-weight: 800; }
+    .drawer-body select { width: 100%; min-height: 46px; padding: 9px 10px; border: 1px solid #cfd8e3; border-radius: 10px; background: #fff; color: var(--ink); }
+    .drawer-hint { margin-top: 9px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .drawer-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; padding: 16px 18px; border-top: 1px solid var(--line); }
+    .drawer-actions button { border: 1px solid var(--line); border-radius: 10px; padding: 10px; cursor: pointer; font-weight: 800; }
+    .drawer-actions .apply { color: #fff; background: var(--primary); border-color: var(--primary); }
     .district-marker { display: grid; justify-items: center; cursor: pointer; font-family: "Noto Sans Thai", "Leelawadee UI", Tahoma, sans-serif; }
     .district-marker-name {
       margin-bottom: 3px; padding: 3px 7px; border-radius: 7px;
@@ -791,6 +819,23 @@ HTML_TEMPLATE = r'''<!doctype html>
           <label><input id="heatmapToggle" type="checkbox" checked /> แสดง Heatmap</label>
           <label><input id="poleLocationToggle" type="checkbox" /> แสดงตำแหน่งเสา</label>
         </div>
+        <button class="repair-filter-trigger" id="repairFilterOpen" aria-controls="repairFilterDrawer" aria-expanded="false">วิธีการแก้ไข</button>
+        <div class="drawer-backdrop" id="repairFilterBackdrop"></div>
+        <aside class="repair-drawer" id="repairFilterDrawer" aria-hidden="true">
+          <div class="drawer-head">
+            <h2>ตัวกรองวิธีการแก้ไข</h2>
+            <button class="drawer-close" id="repairFilterClose" type="button">ปิด ✕</button>
+          </div>
+          <div class="drawer-body">
+            <label for="repairMethodDrawerSelect">เลือกวิธีการแก้ไข</label>
+            <select id="repairMethodDrawerSelect"></select>
+            <div class="drawer-hint">ตัวกรองนี้จะใช้กับข้อมูลทุกโหมดบนแผนที่</div>
+          </div>
+          <div class="drawer-actions">
+            <button id="repairFilterClear" type="button">ล้างตัวกรอง</button>
+            <button class="apply" id="repairFilterApply" type="button">ใช้ตัวกรอง</button>
+          </div>
+        </aside>
       </div>
     </section>
 
@@ -848,6 +893,32 @@ function fillSelect(id, field) {
   const select = el(id);
   select.innerHTML = `<option value="${ALL_VALUE}">ทั้งหมด</option>` +
     uniqueValues(field).map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+}
+
+function fillRepairMethodDrawer() {
+  const counts = new Map();
+  RAW_RECORDS.forEach(record => {
+    const method = display(record.repair_method);
+    counts.set(method, (counts.get(method) || 0) + 1);
+  });
+  const options = [...counts.entries()].sort((a,b) => b[1] - a[1] || a[0].localeCompare(b[0], "th"));
+  el("repairMethodDrawerSelect").innerHTML = `<option value="${ALL_VALUE}">ทั้งหมด</option>` +
+    options.map(([method, count]) => `<option value="${escapeHtml(method)}">${escapeHtml(method)} (${fmt.format(count)})</option>`).join("");
+}
+
+function setRepairDrawerOpen(open) {
+  el("repairFilterDrawer").classList.toggle("open", open);
+  el("repairFilterBackdrop").classList.toggle("open", open);
+  el("repairFilterDrawer").setAttribute("aria-hidden", String(!open));
+  el("repairFilterOpen").setAttribute("aria-expanded", String(open));
+}
+
+function syncRepairFilterButton() {
+  const value = selected("methodFilter");
+  const active = value !== ALL_VALUE;
+  el("repairFilterOpen").classList.toggle("active", active);
+  el("repairFilterOpen").textContent = active ? `วิธีแก้ไข: ${value}` : "วิธีการแก้ไข";
+  el("repairFilterOpen").title = active ? value : "เปิดตัวกรองวิธีการแก้ไข";
 }
 
 function selected(id) { return el(id).value; }
@@ -1314,6 +1385,7 @@ function updateDashboard({fit=false} = {}) {
     setSelected("methodFilter", name); updateDashboard({fit:true});
   });
   updateMapData(filteredRecords, poles);
+  syncRepairFilterButton();
   if (fit) fitToData(filteredRecords);
 }
 
@@ -1353,6 +1425,7 @@ fillSelect("damageFilter", "damage_type");
 fillSelect("symptomFilter", "symptom");
 fillSelect("methodFilter", "repair_method");
 fillSelect("statusFilter", "complaint_status");
+fillRepairMethodDrawer();
 updateDashboard();
 
 // MapLibre map
@@ -1459,6 +1532,26 @@ el("exportButton").addEventListener("click", exportCsv);
 document.querySelectorAll(".mode-button").forEach(btn => btn.addEventListener("click", () => configureMode(btn.dataset.mode)));
 el("heatmapToggle").addEventListener("change", refreshLayerToggles);
 el("poleLocationToggle").addEventListener("change", refreshLayerToggles);
+el("repairFilterOpen").addEventListener("click", () => {
+  el("repairMethodDrawerSelect").value = selected("methodFilter");
+  setRepairDrawerOpen(true);
+});
+el("repairFilterClose").addEventListener("click", () => setRepairDrawerOpen(false));
+el("repairFilterBackdrop").addEventListener("click", () => setRepairDrawerOpen(false));
+el("repairFilterApply").addEventListener("click", () => {
+  setSelected("methodFilter", el("repairMethodDrawerSelect").value);
+  updateDashboard({fit:true});
+  setRepairDrawerOpen(false);
+});
+el("repairFilterClear").addEventListener("click", () => {
+  el("repairMethodDrawerSelect").value = ALL_VALUE;
+  setSelected("methodFilter", ALL_VALUE);
+  updateDashboard({fit:true});
+  setRepairDrawerOpen(false);
+});
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") setRepairDrawerOpen(false);
+});
 ["districtFilter","lampFilter","damageFilter","symptomFilter","methodFilter","statusFilter","dateFrom","dateTo"]
   .forEach(id => el(id).addEventListener("change", () => updateDashboard({fit:false})));
 let searchTimer;
