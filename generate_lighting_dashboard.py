@@ -725,6 +725,8 @@ HTML_TEMPLATE = r'''<!doctype html>
     .summary-bar-list.green .summary-bar-fill { background: linear-gradient(90deg,#137333,#6dd58c); }
     .summary-bar-list.orange .summary-bar-fill { background: linear-gradient(90deg,#b06000,#f9ab00); }
     .summary-bar-list.purple .summary-bar-fill { background: linear-gradient(90deg,#7627bb,#c58af9); }
+    .summary-bar-list.red .summary-bar-fill { background: linear-gradient(90deg,#b3261e,#f28b82); }
+    .summary-span-2 { grid-column: span 2; }
     .summary-overview { display: grid; grid-template-columns: 120px 1fr; gap: 16px; align-items: center; }
     .summary-ring {
       --value: 0%; width: 112px; aspect-ratio: 1; display: grid; place-items: center;
@@ -735,6 +737,42 @@ HTML_TEMPLATE = r'''<!doctype html>
     .summary-ring-value { position: relative; z-index: 1; font-size: 19px; font-weight: 800; }
     .summary-insights { display: grid; gap: 8px; }
     .summary-insight { padding: 9px 11px; border-radius: 12px; color: #3c4043; background: #f0f4f9; font-size: 11px; line-height: 1.45; }
+    .summary-proxy-note {
+      margin: -4px 0 12px; padding: 8px 10px; border-radius: 11px; color: #8a4b08;
+      background: #fff4e5; font-size: 10px; line-height: 1.45;
+    }
+    .cause-value { display: inline-flex; gap: 5px; align-items: baseline; }
+    .cause-value small { color: #80868b; font-size: 9px; font-weight: 600; }
+    .risk-list { display: grid; gap: 9px; }
+    .risk-row { padding: 6px 7px 8px; margin: -4px -7px; border-radius: 10px; cursor: pointer; transition: background .18s ease; }
+    .risk-row:hover { background: #f0f4f9; }
+    .risk-meta { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 4px; font-size: 11px; }
+    .risk-meta strong { font-size: 11px; }
+    .risk-meta span:last-child { color: #5f6368; font-size: 10px; }
+    .risk-track { height: 8px; overflow: hidden; border-radius: 999px; background: #edf1f7; }
+    .risk-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg,#b3261e,#f28b82); }
+    .trend-chart { width: 100%; min-height: 220px; }
+    .trend-chart svg { display: block; width: 100%; height: 220px; overflow: visible; }
+    .trend-grid { stroke: #e8edf5; stroke-width: 1; }
+    .trend-axis-label { fill: #80868b; font-size: 9px; }
+    .trend-area { fill: url(#outageAreaGradient); }
+    .trend-line { fill: none; stroke: #b3261e; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .trend-point { fill: #fff; stroke: #b3261e; stroke-width: 2.5; }
+    .trend-foot { display: flex; justify-content: space-between; gap: 12px; color: #80868b; font-size: 9px; }
+    .matrix-wrap { overflow: auto; }
+    .cause-matrix { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; }
+    .cause-matrix th { padding: 4px; color: #5f6368; font-size: 9px; font-weight: 700; text-align: center; }
+    .cause-matrix th:first-child { width: 115px; text-align: left; }
+    .cause-matrix td { height: 38px; border-radius: 9px; color: #202124; font-size: 10px; font-weight: 800; text-align: center; cursor: pointer; transition: transform .16s ease; }
+    .cause-matrix td:hover { transform: scale(1.05); outline: 2px solid rgba(11,87,208,.25); }
+    .quality-list { display: grid; gap: 13px; }
+    .quality-row { display: grid; gap: 5px; }
+    .quality-meta { display: flex; justify-content: space-between; gap: 8px; font-size: 10px; }
+    .quality-meta strong { font-size: 11px; }
+    .quality-track { height: 9px; overflow: hidden; border-radius: 999px; background: #edf1f7; }
+    .quality-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg,#0b57d0,#6ea8fe); }
+    .quality-fill.warn { background: linear-gradient(90deg,#b06000,#f9ab00); }
+    .quality-caption { margin-top: 13px; padding: 9px 10px; border-radius: 11px; color: #5f6368; background: #f0f4f9; font-size: 9px; line-height: 1.45; }
     .summary-empty { padding: 18px 8px; color: #80868b; text-align: center; font-size: 12px; }
     .analysis-detail-backdrop {
       position: absolute; inset: 0; z-index: 34; opacity: 0; visibility: hidden;
@@ -770,12 +808,14 @@ HTML_TEMPLATE = r'''<!doctype html>
     @media (max-width: 1200px) {
       .summary-kpis { grid-template-columns: repeat(3,1fr); }
       .summary-grid { grid-template-columns: 1fr 1fr; }
+      .summary-span-2 { grid-column: span 2; }
     }
     @media (max-width: 700px) {
       .analysis-dashboard { inset: 6px; border-radius: 22px; }
       .analysis-content { padding: 12px; }
       .summary-kpis { grid-template-columns: repeat(2,1fr); }
       .summary-grid { grid-template-columns: 1fr; }
+      .summary-span-2 { grid-column: span 1; }
     }
     .district-marker { display: grid; justify-items: center; cursor: pointer; font-family: "Noto Sans Thai", "Leelawadee UI", Tahoma, sans-serif; }
     .district-marker-name {
@@ -1009,7 +1049,7 @@ HTML_TEMPLATE = r'''<!doctype html>
               <div class="summary-kpi"><div class="summary-kpi-label">จำนวนเสา</div><div class="summary-kpi-value" id="summaryPoles">0</div><div class="summary-kpi-note">รหัสเสาไม่ซ้ำ</div></div>
               <div class="summary-kpi"><div class="summary-kpi-label">รอบการซ่อม</div><div class="summary-kpi-value" id="summaryRepairs">0</div><div class="summary-kpi-note">รวมทุกเหตุซ่อม</div></div>
               <div class="summary-kpi"><div class="summary-kpi-label">ครั้งที่ไฟดับ</div><div class="summary-kpi-value" id="summaryOutages">0</div><div class="summary-kpi-note">เหตุไฟดับจริง</div></div>
-              <div class="summary-kpi"><div class="summary-kpi-label">เสาซ่อมซ้ำ</div><div class="summary-kpi-value" id="summaryRepeat">0</div><div class="summary-kpi-note">ตั้งแต่ 2 รอบขึ้นไป</div></div>
+              <div class="summary-kpi"><div class="summary-kpi-label">เสาไฟดับซ้ำ</div><div class="summary-kpi-value" id="summaryRepeat">0</div><div class="summary-kpi-note">ไฟดับตั้งแต่ 2 ครั้งขึ้นไป</div></div>
               <div class="summary-kpi"><div class="summary-kpi-label">เวลาซ่อมค่ากลาง</div><div class="summary-kpi-value" id="summaryMedian">–</div><div class="summary-kpi-note">Median ชั่วโมง</div></div>
             </div>
             <div class="summary-grid">
@@ -1017,10 +1057,12 @@ HTML_TEMPLATE = r'''<!doctype html>
                 <h3>ภาพรวมประสิทธิผล</h3><div class="summary-card-sub">อัตราปิดงานและ Insight จากข้อมูลปัจจุบัน</div>
                 <div class="summary-overview"><div class="summary-ring" id="summaryCompletionRing"><span class="summary-ring-value" id="summaryCompletion">0%</span></div><div class="summary-insights" id="summaryInsights"></div></div>
               </article>
-              <article class="summary-card"><h3>เขตที่มีรอบซ่อมสูง</h3><div class="summary-card-sub">รวมจำนวนรอบซ่อมตามเขต</div><div class="summary-bar-list" id="summaryDistricts"></div></article>
+              <article class="summary-card"><h3>สาเหตุไฟดับที่อนุมาน</h3><div class="summary-card-sub">จัดกลุ่มจากวิธีแก้ไขและรายละเอียดหน้างาน</div><div class="summary-proxy-note">เป็น Cause Proxy เพื่อชี้ทิศทางวิเคราะห์ ไม่ใช่ Root Cause ที่ยืนยันแล้ว</div><div class="summary-bar-list red" id="summaryCauses"></div></article>
+              <article class="summary-card"><h3>เขตเสี่ยงไฟดับซ้ำ</h3><div class="summary-card-sub">สัดส่วนเสาที่ไฟดับตั้งแต่ 2 ครั้งต่อเสาในเขต</div><div class="risk-list" id="summaryDistrictRisk"></div></article>
+              <article class="summary-card summary-span-2"><h3>แนวโน้มเหตุไฟดับรายเดือน</h3><div class="summary-card-sub">นับหนึ่งครั้งต่อรอบการซ่อม ใช้ดูแนวโน้มและความผิดปกติตามเวลา</div><div class="trend-chart" id="summaryTrend"></div><div class="trend-foot" id="summaryTrendFoot"></div></article>
               <article class="summary-card"><h3>วิธีการแก้ไขที่พบบ่อย</h3><div class="summary-card-sub">นับหนึ่งครั้งต่อรอบการซ่อม</div><div class="summary-bar-list green" id="summaryMethods"></div></article>
-              <article class="summary-card"><h3>ประเภทความเสียหาย</h3><div class="summary-card-sub">สาเหตุหรืออุปกรณ์ที่บันทึกไว้</div><div class="summary-bar-list orange" id="summaryDamage"></div></article>
-              <article class="summary-card"><h3>สถานะข้อร้องเรียน</h3><div class="summary-card-sub">การกระจายของสถานะในข้อมูล</div><div class="summary-bar-list purple" id="summaryStatuses"></div></article>
+              <article class="summary-card summary-span-2"><h3>Heatmap เขต × สาเหตุไฟดับ</h3><div class="summary-card-sub">สีเข้มหมายถึงจำนวนเหตุในกลุ่มนั้นสูง คลิกช่องเพื่อดูรายชื่อเสา</div><div class="matrix-wrap" id="summaryCauseMatrix"></div></article>
+              <article class="summary-card"><h3>คุณภาพข้อมูลสำหรับวิเคราะห์สาเหตุ</h3><div class="summary-card-sub">ความครบถ้วนของฟิลด์สำคัญในข้อมูลที่กรอง</div><div class="quality-list" id="summaryDataQuality"></div><div class="quality-caption">ควรเพิ่มช่อง “Root Cause ที่ยืนยันแล้ว” ในแหล่งข้อมูล เพื่อแยกสาเหตุจริงออกจากอาการและวิธีแก้ไข</div></article>
             </div>
           </div>
           <div class="analysis-detail-backdrop" id="analysisDetailBackdrop"></div>
@@ -1427,6 +1469,192 @@ function renderSummaryBars(containerId, entries, kind, limit=7) {
   });
 }
 
+function outageCause(incident) {
+  const parts = [incident.repair_method, incident.details].map(clean).filter(value => value && value !== UNKNOWN);
+  if (!parts.length) return "ไม่สามารถระบุสาเหตุ";
+  const text = parts.join(" ").toLowerCase();
+  if (["การไฟฟ้านครหลวง","กฟน.","ระบบไฟฟ้าภายนอก","ไม่เกี่ยวข้องกับระบบ"].some(v => text.includes(v))) {
+    return "ระบบไฟฟ้าภายนอก";
+  }
+  if (["เสิร์จ","เซิร์จ","surge","ฟิวส์","เบรกเกอร์","อุปกรณ์ป้องกัน"].some(v => text.includes(v))) {
+    return "อุปกรณ์ป้องกันไฟฟ้า";
+  }
+  if (["ขั้วต่อ","จุดต่อ","คอนเนคเตอร์","connector"].some(v => text.includes(v))) {
+    return "ขั้วต่อ / จุดต่อ";
+  }
+  if (["สายไฟ","สายเมน","สาย l","สาย n","วงจร","สายขาด","สายโดนตัด"].some(v => text.includes(v))) {
+    return "สายไฟ / วงจร";
+  }
+  if (["ทำความสะอาด","สิ่งสกปรก","คราบ","รังนก"].some(v => text.includes(v))) {
+    return "สิ่งสกปรก / บำรุงรักษา";
+  }
+  if (["ติดตั้ง","รูปแบบการติดตั้ง","เสาไฟใหม่"].some(v => text.includes(v))) {
+    return "การติดตั้ง / โครงสร้าง";
+  }
+  if (["โคม","หลอด","สตาร์ทเตอร์","บัลลาสต์"].some(v => text.includes(v))) {
+    return "โคม / หลอดไฟ";
+  }
+  return "อื่น ๆ / ไม่ชัดเจน";
+}
+
+function renderCauseBars(entries, total) {
+  const container = el("summaryCauses");
+  const top = entries.filter(([,value]) => value > 0).slice(0, 7);
+  if (!top.length) {
+    container.innerHTML = `<div class="summary-empty">ไม่มีเหตุไฟดับตามตัวกรอง</div>`;
+    return;
+  }
+  const max = Math.max(...top.map(([,value]) => value), 1);
+  container.innerHTML = top.map(([name, value]) => {
+    const percent = total ? value / total * 100 : 0;
+    return `<div class="summary-bar-row" data-name="${escapeHtml(name)}" data-value="${value}" title="คลิกเพื่อดูรายชื่อเสา">
+      <div class="summary-bar-meta"><span class="summary-bar-name" title="${escapeHtml(name)}">${escapeHtml(name)}</span><span class="summary-bar-value cause-value">${fmt.format(value)}<small>${fmt1.format(percent)}%</small></span></div>
+      <div class="summary-bar-track"><div class="summary-bar-fill" style="width:${Math.max(3,value/max*100)}%"></div></div>
+    </div>`;
+  }).join("");
+  container.querySelectorAll(".summary-bar-row").forEach(row => {
+    row.addEventListener("click", () => openAnalysisDetails("cause", row.dataset.name, Number(row.dataset.value)));
+  });
+}
+
+function renderDistrictRisk(entries) {
+  const container = el("summaryDistrictRisk");
+  const top = entries.filter(item => item.poles > 0 && item.outages > 0).slice(0, 7);
+  if (!top.length) {
+    container.innerHTML = `<div class="summary-empty">ไม่มีข้อมูลความเสี่ยงตามตัวกรอง</div>`;
+    return;
+  }
+  const maxRate = Math.max(...top.map(item => item.rate), 1);
+  container.innerHTML = top.map(item => `
+    <div class="risk-row" data-name="${escapeHtml(item.district)}" data-count="${item.outages}" title="คลิกเพื่อดูรายชื่อเสาในเขต">
+      <div class="risk-meta"><strong>${escapeHtml(item.district)}</strong><span>${fmt1.format(item.rate)}% · ${fmt.format(item.repeatPoles)} เสาซ้ำ</span></div>
+      <div class="risk-track"><div class="risk-fill" style="width:${Math.max(3,item.rate/maxRate*100)}%"></div></div>
+    </div>`).join("");
+  container.querySelectorAll(".risk-row").forEach(row => {
+    row.addEventListener("click", () => openAnalysisDetails("district", row.dataset.name, Number(row.dataset.count)));
+  });
+}
+
+function renderOutageTrend(incidents) {
+  const outageIncidents = incidents.filter(item => item.is_outage);
+  const dated = outageIncidents.filter(item => clean(item.start_iso)).sort((a,b) => clean(a.start_iso).localeCompare(clean(b.start_iso)));
+  const counts = new Map();
+  dated.forEach(item => {
+    const month = clean(item.start_iso).slice(0, 7);
+    if (month) counts.set(month, (counts.get(month) || 0) + 1);
+  });
+  let entries = [...counts.entries()].sort((a,b) => a[0].localeCompare(b[0]));
+  let omittedPartial = "";
+  if (dated.length && entries.length) {
+    const maxDate = clean(dated[dated.length - 1].start_iso).slice(0, 10);
+    const maxDay = Number(maxDate.slice(8, 10));
+    const maxMonth = maxDate.slice(0, 7);
+    if (maxDay > 0 && maxDay < 25 && entries[entries.length - 1][0] === maxMonth) {
+      omittedPartial = maxMonth;
+      entries = entries.slice(0, -1);
+    }
+  }
+  entries = entries.slice(-12);
+  const container = el("summaryTrend");
+  if (entries.length < 2) {
+    container.innerHTML = `<div class="summary-empty">ข้อมูลวันที่ไม่เพียงพอสำหรับแสดงแนวโน้ม</div>`;
+    el("summaryTrendFoot").innerHTML = "";
+    return;
+  }
+  const width = 760, height = 220, left = 48, right = 18, top = 14, bottom = 38;
+  const chartW = width - left - right, chartH = height - top - bottom;
+  const maxValue = Math.max(...entries.map(([,value]) => value), 1);
+  const roundedMax = Math.max(100, Math.ceil(maxValue / 100) * 100);
+  const points = entries.map((entry, index) => ({
+    month: entry[0], value: entry[1],
+    x: left + index * chartW / Math.max(entries.length - 1, 1),
+    y: top + chartH - entry[1] / roundedMax * chartH
+  }));
+  const grid = [0,1,2,3,4].map(step => {
+    const value = roundedMax * (4-step) / 4;
+    const y = top + step * chartH / 4;
+    return `<line class="trend-grid" x1="${left}" x2="${width-right}" y1="${y}" y2="${y}"></line>
+      <text class="trend-axis-label" x="${left-8}" y="${y+3}" text-anchor="end">${fmt.format(value)}</text>`;
+  }).join("");
+  const linePath = points.map((point,index) => `${index ? "L" : "M"} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`).join(" ");
+  const areaPath = `${linePath} L ${points[points.length-1].x.toFixed(1)} ${(top+chartH).toFixed(1)} L ${points[0].x.toFixed(1)} ${(top+chartH).toFixed(1)} Z`;
+  const thaiMonths = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+  const labels = points.map((point,index) => {
+    const [year,month] = point.month.split("-").map(Number);
+    const yearShort = String((year + 543) % 100).padStart(2, "0");
+    return `<text class="trend-axis-label" x="${point.x}" y="${height-13}" text-anchor="middle">${thaiMonths[month-1]} ${yearShort}</text>
+      <circle class="trend-point" cx="${point.x}" cy="${point.y}" r="4"><title>${point.month}: ${fmt.format(point.value)} เหตุ</title></circle>`;
+  }).join("");
+  container.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="แนวโน้มเหตุไฟดับรายเดือน">
+    <defs><linearGradient id="outageAreaGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f28b82" stop-opacity=".45"/><stop offset="100%" stop-color="#f28b82" stop-opacity=".04"/></linearGradient></defs>
+    ${grid}<path class="trend-area" d="${areaPath}"></path><path class="trend-line" d="${linePath}"></path>${labels}
+  </svg>`;
+  const datedRate = outageIncidents.length ? dated.length / outageIncidents.length * 100 : 0;
+  el("summaryTrendFoot").innerHTML = `<span>เหตุที่มีวันที่ ${fmt1.format(datedRate)}%</span><span>${omittedPartial ? `ไม่รวม ${escapeHtml(omittedPartial)} เพราะข้อมูลยังไม่เต็มเดือน` : "แสดงสูงสุด 12 เดือนล่าสุด"}</span>`;
+}
+
+function renderCauseMatrix(poles, causeEntries) {
+  const districtTotals = poles.map(pole => ({
+    district:pole.district,
+    outages:pole.incidents.filter(item => item.is_outage).length
+  })).reduce((counts,item) => {
+    counts.set(item.district, (counts.get(item.district) || 0) + item.outages);
+    return counts;
+  }, new Map());
+  const districts = [...districtTotals.entries()].filter(([,value]) => value > 0)
+    .sort((a,b) => b[1]-a[1]).slice(0, 6).map(([name]) => name);
+  const causes = causeEntries.filter(([,value]) => value > 0).slice(0, 5).map(([name]) => name);
+  const counts = new Map();
+  poles.forEach(pole => pole.incidents.filter(item => item.is_outage).forEach(incident => {
+    const key = `${pole.district}\u0000${outageCause(incident)}`;
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }));
+  const container = el("summaryCauseMatrix");
+  if (!districts.length || !causes.length) {
+    container.innerHTML = `<div class="summary-empty">ไม่มีข้อมูลสำหรับสร้าง Heatmap</div>`;
+    return;
+  }
+  const maxValue = Math.max(...districts.flatMap(district => causes.map(cause => counts.get(`${district}\u0000${cause}`) || 0)), 1);
+  container.innerHTML = `<table class="cause-matrix"><thead><tr><th>เขต</th>${causes.map(cause => `<th title="${escapeHtml(cause)}">${escapeHtml(cause)}</th>`).join("")}</tr></thead><tbody>
+    ${districts.map(district => `<tr><th title="${escapeHtml(district)}">${escapeHtml(district)}</th>${causes.map(cause => {
+      const value = counts.get(`${district}\u0000${cause}`) || 0;
+      const strength = value / maxValue;
+      const alpha = value ? 0.12 + strength * 0.78 : 0.04;
+      const color = strength > 0.52 ? "#ffffff" : "#202124";
+      return `<td data-district="${escapeHtml(district)}" data-cause="${escapeHtml(cause)}" data-value="${value}" style="background:rgba(11,87,208,${alpha.toFixed(2)});color:${color}" title="${escapeHtml(district)} · ${escapeHtml(cause)}: ${fmt.format(value)} เหตุ">${value ? fmt.format(value) : "–"}</td>`;
+    }).join("")}</tr>`).join("")}
+  </tbody></table>`;
+  container.querySelectorAll("td[data-district]").forEach(cell => {
+    cell.addEventListener("click", () => {
+      const value = Number(cell.dataset.value);
+      if (value <= 0) return;
+      openAnalysisDetails(
+        "districtCause", `${cell.dataset.district} · ${cell.dataset.cause}`, value,
+        {district:cell.dataset.district, cause:cell.dataset.cause}
+      );
+    });
+  });
+}
+
+function renderDataQuality(records, incidents, poles) {
+  const outages = incidents.filter(item => item.is_outage);
+  const hasDetail = item => {
+    const detail = clean(item.details);
+    return detail && detail !== UNKNOWN && detail !== "ไฟดับ";
+  };
+  const metrics = [
+    ["รายละเอียดสาเหตุหน้างาน", outages.filter(hasDetail).length, outages.length],
+    ["วิธีแก้ไข", outages.filter(item => display(item.repair_method) !== UNKNOWN).length, outages.length],
+    ["ช่วงเวลาและเวลาซ่อม", incidents.filter(item => Number.isFinite(item.repair_hours)).length, incidents.length],
+    ["เขตพื้นที่", poles.filter(pole => display(pole.district) !== UNKNOWN).length, poles.length]
+  ];
+  el("summaryDataQuality").innerHTML = metrics.map(([label,value,total]) => {
+    const percent = total ? value / total * 100 : 0;
+    return `<div class="quality-row"><div class="quality-meta"><span>${escapeHtml(label)}</span><strong>${fmt1.format(percent)}%</strong></div>
+      <div class="quality-track"><div class="quality-fill ${percent < 60 ? "warn" : ""}" style="width:${Math.max(percent ? 2 : 0,percent)}%"></div></div></div>`;
+  }).join("");
+}
+
 function setAnalysisDetailOpen(open) {
   el("analysisDetail").classList.toggle("open", open);
   el("analysisDetailBackdrop").classList.toggle("open", open);
@@ -1458,7 +1686,7 @@ function renderAnalysisDetailList(query="") {
     `<div class="summary-empty">ไม่พบเสาที่ตรงกับคำค้นหา</div>`;
 }
 
-function openAnalysisDetails(kind, name, sourceCount) {
+function openAnalysisDetails(kind, name, sourceCount, context={}) {
   const poles = [...poleIndex.values()];
   let matched = [];
   if (kind === "district") {
@@ -1470,12 +1698,20 @@ function openAnalysisDetails(kind, name, sourceCount) {
   } else if (kind === "status") {
     const keys = new Set(filteredRecords.filter(record => display(record.complaint_status) === name).map(record => record.pole_key));
     matched = poles.filter(pole => keys.has(pole.pole_key));
+  } else if (kind === "cause") {
+    matched = poles.filter(pole => pole.incidents.some(incident => incident.is_outage && outageCause(incident) === name));
+  } else if (kind === "districtCause") {
+    matched = poles.filter(pole => pole.district === context.district &&
+      pole.incidents.some(incident => incident.is_outage && outageCause(incident) === context.cause));
   }
   analysisDetailPoles = matched.sort((a,b) =>
     b.repair_count - a.repair_count || b.complaint_count - a.complaint_count ||
     String(a.pole_code).localeCompare(String(b.pole_code), "th")
   );
-  const labels = {district:"เขต", method:"วิธีแก้ไข", damage:"ประเภทความเสียหาย", status:"สถานะ"};
+  const labels = {
+    district:"เขต", method:"วิธีแก้ไข", damage:"ประเภทความเสียหาย",
+    status:"สถานะ", cause:"สาเหตุที่อนุมาน", districtCause:"เขต × สาเหตุ"
+  };
   el("analysisDetailTitle").textContent = `${labels[kind] || "รายละเอียด"}: ${name}`;
   el("analysisDetailMeta").textContent = `${fmt.format(analysisDetailPoles.length)} เสา · ${fmt.format(sourceCount)} รายการในกราฟ`;
   el("analysisDetailSearch").value = "";
@@ -1486,8 +1722,9 @@ function openAnalysisDetails(kind, name, sourceCount) {
 function renderAnalysisDashboard(records, poles) {
   const incidents = poles.flatMap(p => p.incidents);
   const completed = incidents.filter(item => item.is_completed).length;
-  const outages = incidents.filter(item => item.is_outage).length;
-  const repeatPoles = poles.filter(p => p.repair_count >= 2).length;
+  const outageIncidents = incidents.filter(item => item.is_outage);
+  const outages = outageIncidents.length;
+  const repeatPoles = poles.filter(p => p.outage_count >= 2).length;
   const repairMedian = median(incidents.map(item => item.repair_hours));
   const completionRate = incidents.length ? completed / incidents.length * 100 : 0;
 
@@ -1500,39 +1737,50 @@ function renderAnalysisDashboard(records, poles) {
   el("summaryCompletion").textContent = `${fmt1.format(completionRate)}%`;
   el("summaryCompletionRing").style.setProperty("--value", `${Math.max(0,Math.min(100,completionRate))}%`);
 
-  const districtRepairs = poles.reduce((counts, pole) => {
-    counts.set(pole.district, (counts.get(pole.district) || 0) + pole.repair_count);
-    return counts;
-  }, new Map());
   const methodCounts = incidents.reduce((counts, incident) => {
     const name = display(incident.repair_method);
     counts.set(name, (counts.get(name) || 0) + 1);
     return counts;
   }, new Map());
-  const damageCounts = incidents.reduce((counts, incident) => {
-    const name = display(incident.damage_type);
+  const causeCounts = outageIncidents.reduce((counts, incident) => {
+    const name = outageCause(incident);
     counts.set(name, (counts.get(name) || 0) + 1);
     return counts;
   }, new Map());
-  const statusCounts = countBy(records, "complaint_status");
-  const districtEntries = [...districtRepairs.entries()].sort((a,b) => b[1]-a[1]);
   const methodEntries = [...methodCounts.entries()].sort((a,b) => b[1]-a[1]);
-  const damageEntries = [...damageCounts.entries()].sort((a,b) => b[1]-a[1]);
+  const causeEntries = [...causeCounts.entries()].sort((a,b) => b[1]-a[1]);
+  const districtRisk = [...poles.reduce((stats, pole) => {
+    if (!stats.has(pole.district)) stats.set(pole.district, {district:pole.district, poles:0, outages:0, repeatPoles:0});
+    const item = stats.get(pole.district);
+    item.poles += 1;
+    item.outages += pole.outage_count;
+    if (pole.outage_count >= 2) item.repeatPoles += 1;
+    return stats;
+  }, new Map()).values()].map(item => ({
+    ...item,
+    rate:item.poles ? item.repeatPoles / item.poles * 100 : 0
+  })).sort((a,b) => b.rate-a.rate || b.repeatPoles-a.repeatPoles || b.outages-a.outages);
 
-  renderSummaryBars("summaryDistricts", districtEntries, "district");
+  renderCauseBars(causeEntries, outages);
+  renderDistrictRisk(districtRisk);
+  renderOutageTrend(incidents);
   renderSummaryBars("summaryMethods", methodEntries, "method");
-  renderSummaryBars("summaryDamage", damageEntries, "damage");
-  renderSummaryBars("summaryStatuses", statusCounts, "status");
+  renderCauseMatrix(poles, causeEntries);
+  renderDataQuality(records, incidents, poles);
 
   const repeatRate = poles.length ? repeatPoles / poles.length * 100 : 0;
-  const topDistrict = districtEntries[0];
-  const topMethod = methodEntries[0];
-  const topDamage = damageEntries[0];
+  const topRiskDistrict = districtRisk[0];
+  const topCause = causeEntries[0];
+  const detailedOutages = outageIncidents.filter(item => {
+    const detail = clean(item.details);
+    return detail && detail !== UNKNOWN && detail !== "ไฟดับ";
+  }).length;
+  const detailRate = outages ? detailedOutages / outages * 100 : 0;
   el("summaryInsights").innerHTML = [
-    topDistrict ? `<div class="summary-insight"><strong>${escapeHtml(topDistrict[0])}</strong> มีรอบซ่อมสูงสุด ${fmt.format(topDistrict[1])} รอบ</div>` : "",
-    topMethod ? `<div class="summary-insight">วิธีแก้ไขหลักคือ <strong>${escapeHtml(topMethod[0])}</strong> (${fmt.format(topMethod[1])} รอบ)</div>` : "",
-    topDamage ? `<div class="summary-insight">ความเสียหายที่พบบ่อยคือ <strong>${escapeHtml(topDamage[0])}</strong></div>` : "",
-    `<div class="summary-insight">เสาซ่อมซ้ำคิดเป็น <strong>${fmt1.format(repeatRate)}%</strong> ของเสาที่มีข้อมูล</div>`
+    topCause ? `<div class="summary-insight">Cause Proxy หลักคือ <strong>${escapeHtml(topCause[0])}</strong> (${fmt1.format(outages ? topCause[1]/outages*100 : 0)}%)</div>` : "",
+    topRiskDistrict ? `<div class="summary-insight"><strong>${escapeHtml(topRiskDistrict.district)}</strong> มีสัดส่วนเสาไฟดับซ้ำสูงสุด ${fmt1.format(topRiskDistrict.rate)}%</div>` : "",
+    `<div class="summary-insight">รายละเอียดหน้างานที่ช่วยยืนยันสาเหตุมีเพียง <strong>${fmt1.format(detailRate)}%</strong></div>`,
+    `<div class="summary-insight">เสาไฟดับซ้ำคิดเป็น <strong>${fmt1.format(repeatRate)}%</strong> ของเสาที่มีข้อมูล</div>`
   ].filter(Boolean).join("");
 
   const activeFilters = [
