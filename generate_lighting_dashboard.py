@@ -1063,7 +1063,9 @@ const INITIAL_BOUNDS = __BOUNDS_JSON__;
 
 const ALL_VALUE = "__ALL__";
 const UNKNOWN = "ไม่ระบุ";
-const POLE_DETAIL_ZOOM = 15;
+// Point-count modes switch from district clusters to individual poles at the
+// same practical scale used after fitting the map to a selected district.
+const POLE_DETAIL_ZOOM = 13;
 let filteredRecords = [...RAW_RECORDS];
 let currentMode = "complaintHeat";
 let mapReady = false;
