@@ -656,6 +656,93 @@ HTML_TEMPLATE = r'''<!doctype html>
     .drawer-actions button:hover { transform: translateY(-1px); }
     .drawer-actions .clear { color: #0b57d0; background: #e8f0fe; }
     .drawer-actions .apply { color: #fff; background: #0b57d0; box-shadow: 0 2px 6px rgba(11,87,208,.30); }
+    .analysis-open {
+      position: absolute; left: 16px; bottom: 18px; z-index: 7;
+      width: 52px; height: 52px; display: grid; place-items: center;
+      border: 0; border-radius: 17px; color: #444746; background: rgba(255,255,255,.97);
+      box-shadow: 0 2px 5px rgba(60,64,67,.22), 0 8px 24px rgba(60,64,67,.15);
+      cursor: pointer; transition: color .2s ease, background .2s ease, transform .2s ease;
+    }
+    .analysis-open:hover { color: #0b57d0; background: #d3e3fd; transform: translateY(-2px); }
+    .analysis-open svg { width: 26px; height: 26px; }
+    .analysis-backdrop {
+      position: absolute; inset: 0; z-index: 28; opacity: 0; visibility: hidden;
+      background: rgba(32,33,36,.36); backdrop-filter: blur(2px);
+      transition: opacity .28s ease, visibility .28s ease;
+    }
+    .analysis-backdrop.open { opacity: 1; visibility: visible; }
+    .analysis-dashboard {
+      position: absolute; inset: 14px; z-index: 30; display: flex; flex-direction: column;
+      overflow: hidden; color: #1f1f1f; background: #f8fafd; border-radius: 28px;
+      box-shadow: 0 8px 24px rgba(60,64,67,.20), 0 24px 72px rgba(60,64,67,.20);
+      opacity: 0; visibility: hidden; transform: translateY(24px) scale(.985);
+      transition: opacity .3s ease, visibility .3s ease, transform .3s cubic-bezier(.2,0,0,1);
+    }
+    .analysis-dashboard.open { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+    .analysis-head {
+      display: flex; align-items: center; gap: 14px; padding: 18px 22px;
+      color: #fff; background: linear-gradient(135deg,#0b57d0,#174ea6);
+    }
+    .analysis-head-icon {
+      width: 46px; height: 46px; display: grid; place-items: center; flex: 0 0 46px;
+      border-radius: 15px; color: #0b57d0; background: #fff;
+    }
+    .analysis-head-icon svg { width: 27px; height: 27px; }
+    .analysis-head-copy { flex: 1; min-width: 0; }
+    .analysis-head h2 { margin: 0; font-size: 20px; }
+    .analysis-head p { margin: 4px 0 0; color: #d3e3fd; font-size: 11px; }
+    .analysis-close {
+      width: 42px; height: 42px; display: grid; place-items: center; border: 0;
+      border-radius: 50%; color: #fff; background: rgba(255,255,255,.15);
+      cursor: pointer; font-size: 24px; transition: background .2s ease;
+    }
+    .analysis-close:hover { background: rgba(255,255,255,.25); }
+    .analysis-content { flex: 1; min-height: 0; overflow: auto; padding: 18px 20px 24px; }
+    .summary-kpis { display: grid; grid-template-columns: repeat(6,minmax(130px,1fr)); gap: 12px; }
+    .summary-kpi {
+      min-width: 0; padding: 15px 16px; border: 1px solid #e1e5eb; border-radius: 18px;
+      background: #fff; box-shadow: 0 1px 3px rgba(60,64,67,.10);
+    }
+    .summary-kpi-label { color: #5f6368; font-size: 11px; font-weight: 700; }
+    .summary-kpi-value { margin-top: 7px; color: #202124; font-size: 25px; font-weight: 800; letter-spacing: -.5px; }
+    .summary-kpi-note { margin-top: 3px; color: #80868b; font-size: 10px; }
+    .summary-grid { display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 14px; margin-top: 14px; }
+    .summary-card {
+      min-width: 0; padding: 16px 17px; border: 1px solid #e1e5eb; border-radius: 20px;
+      background: #fff; box-shadow: 0 1px 3px rgba(60,64,67,.10);
+    }
+    .summary-card h3 { margin: 0; font-size: 14px; }
+    .summary-card-sub { margin: 4px 0 14px; color: #80868b; font-size: 10px; }
+    .summary-bar-list { display: grid; gap: 10px; }
+    .summary-bar-meta { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 4px; font-size: 11px; }
+    .summary-bar-name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .summary-bar-value { flex: 0 0 auto; font-weight: 800; }
+    .summary-bar-track { height: 8px; overflow: hidden; border-radius: 999px; background: #edf1f7; }
+    .summary-bar-fill { height: 100%; min-width: 2px; border-radius: inherit; background: linear-gradient(90deg,#0b57d0,#6ea8fe); }
+    .summary-bar-list.green .summary-bar-fill { background: linear-gradient(90deg,#137333,#6dd58c); }
+    .summary-bar-list.orange .summary-bar-fill { background: linear-gradient(90deg,#b06000,#f9ab00); }
+    .summary-bar-list.purple .summary-bar-fill { background: linear-gradient(90deg,#7627bb,#c58af9); }
+    .summary-overview { display: grid; grid-template-columns: 120px 1fr; gap: 16px; align-items: center; }
+    .summary-ring {
+      --value: 0%; width: 112px; aspect-ratio: 1; display: grid; place-items: center;
+      border-radius: 50%; background: conic-gradient(#0b57d0 var(--value),#e8eef7 0);
+      position: relative;
+    }
+    .summary-ring::before { content: ""; position: absolute; inset: 13px; border-radius: 50%; background: #fff; }
+    .summary-ring-value { position: relative; z-index: 1; font-size: 19px; font-weight: 800; }
+    .summary-insights { display: grid; gap: 8px; }
+    .summary-insight { padding: 9px 11px; border-radius: 12px; color: #3c4043; background: #f0f4f9; font-size: 11px; line-height: 1.45; }
+    .summary-empty { padding: 18px 8px; color: #80868b; text-align: center; font-size: 12px; }
+    @media (max-width: 1200px) {
+      .summary-kpis { grid-template-columns: repeat(3,1fr); }
+      .summary-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 700px) {
+      .analysis-dashboard { inset: 6px; border-radius: 22px; }
+      .analysis-content { padding: 12px; }
+      .summary-kpis { grid-template-columns: repeat(2,1fr); }
+      .summary-grid { grid-template-columns: 1fr; }
+    }
     .district-marker { display: grid; justify-items: center; cursor: pointer; font-family: "Noto Sans Thai", "Leelawadee UI", Tahoma, sans-serif; }
     .district-marker-name {
       margin-bottom: 3px; padding: 3px 7px; border-radius: 7px;
@@ -866,6 +953,37 @@ HTML_TEMPLATE = r'''<!doctype html>
             <button class="apply" id="repairFilterApply" type="button">ใช้ตัวกรอง</button>
           </div>
         </aside>
+        <button class="analysis-open" id="analysisOpen" type="button" aria-label="เปิด Dashboard สรุปข้อมูล" title="Dashboard สรุปข้อมูล">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 19h16v2H4zM6 10h3v7H6zm5-5h3v12h-3zm5 8h3v4h-3z"/></svg>
+        </button>
+        <div class="analysis-backdrop" id="analysisBackdrop"></div>
+        <section class="analysis-dashboard" id="analysisDashboard" aria-hidden="true">
+          <div class="analysis-head">
+            <div class="analysis-head-icon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 19h16v2H4zM6 10h3v7H6zm5-5h3v12h-3zm5 8h3v4h-3z"/></svg></div>
+            <div class="analysis-head-copy"><h2>Lighting Maintenance Overview</h2><p id="summaryScope">ภาพรวมข้อมูลที่กำลังแสดงบนแผนที่</p></div>
+            <button class="analysis-close" id="analysisClose" type="button" aria-label="ปิด Dashboard">✕</button>
+          </div>
+          <div class="analysis-content">
+            <div class="summary-kpis">
+              <div class="summary-kpi"><div class="summary-kpi-label">ข้อร้องเรียน</div><div class="summary-kpi-value" id="summaryTickets">0</div><div class="summary-kpi-note">Ticket ID ไม่ซ้ำ</div></div>
+              <div class="summary-kpi"><div class="summary-kpi-label">จำนวนเสา</div><div class="summary-kpi-value" id="summaryPoles">0</div><div class="summary-kpi-note">รหัสเสาไม่ซ้ำ</div></div>
+              <div class="summary-kpi"><div class="summary-kpi-label">รอบการซ่อม</div><div class="summary-kpi-value" id="summaryRepairs">0</div><div class="summary-kpi-note">รวมทุกเหตุซ่อม</div></div>
+              <div class="summary-kpi"><div class="summary-kpi-label">ครั้งที่ไฟดับ</div><div class="summary-kpi-value" id="summaryOutages">0</div><div class="summary-kpi-note">เหตุไฟดับจริง</div></div>
+              <div class="summary-kpi"><div class="summary-kpi-label">เสาซ่อมซ้ำ</div><div class="summary-kpi-value" id="summaryRepeat">0</div><div class="summary-kpi-note">ตั้งแต่ 2 รอบขึ้นไป</div></div>
+              <div class="summary-kpi"><div class="summary-kpi-label">เวลาซ่อมค่ากลาง</div><div class="summary-kpi-value" id="summaryMedian">–</div><div class="summary-kpi-note">Median ชั่วโมง</div></div>
+            </div>
+            <div class="summary-grid">
+              <article class="summary-card">
+                <h3>ภาพรวมประสิทธิผล</h3><div class="summary-card-sub">อัตราปิดงานและ Insight จากข้อมูลปัจจุบัน</div>
+                <div class="summary-overview"><div class="summary-ring" id="summaryCompletionRing"><span class="summary-ring-value" id="summaryCompletion">0%</span></div><div class="summary-insights" id="summaryInsights"></div></div>
+              </article>
+              <article class="summary-card"><h3>เขตที่มีรอบซ่อมสูง</h3><div class="summary-card-sub">รวมจำนวนรอบซ่อมตามเขต</div><div class="summary-bar-list" id="summaryDistricts"></div></article>
+              <article class="summary-card"><h3>วิธีการแก้ไขที่พบบ่อย</h3><div class="summary-card-sub">นับหนึ่งครั้งต่อรอบการซ่อม</div><div class="summary-bar-list green" id="summaryMethods"></div></article>
+              <article class="summary-card"><h3>ประเภทความเสียหาย</h3><div class="summary-card-sub">สาเหตุหรืออุปกรณ์ที่บันทึกไว้</div><div class="summary-bar-list orange" id="summaryDamage"></div></article>
+              <article class="summary-card"><h3>สถานะข้อร้องเรียน</h3><div class="summary-card-sub">การกระจายของสถานะในข้อมูล</div><div class="summary-bar-list purple" id="summaryStatuses"></div></article>
+            </div>
+          </div>
+        </section>
       </div>
     </section>
 
@@ -1231,6 +1349,90 @@ function renderBars(containerId, entries, cssClass, onClick) {
   container.querySelectorAll(".bar-row").forEach(row => row.addEventListener("click", () => onClick(row.dataset.name)));
 }
 
+function renderSummaryBars(containerId, entries, limit=7) {
+  const container = el(containerId);
+  const top = entries.filter(([,value]) => value > 0).slice(0, limit);
+  if (!top.length) {
+    container.innerHTML = `<div class="summary-empty">ไม่มีข้อมูลตามตัวกรอง</div>`;
+    return;
+  }
+  const max = Math.max(...top.map(([,value]) => value), 1);
+  container.innerHTML = top.map(([name, value]) => `
+    <div>
+      <div class="summary-bar-meta"><span class="summary-bar-name" title="${escapeHtml(name)}">${escapeHtml(name)}</span><span class="summary-bar-value">${fmt.format(value)}</span></div>
+      <div class="summary-bar-track"><div class="summary-bar-fill" style="width:${Math.max(3,value/max*100)}%"></div></div>
+    </div>`).join("");
+}
+
+function renderAnalysisDashboard(records, poles) {
+  const incidents = poles.flatMap(p => p.incidents);
+  const completed = incidents.filter(item => item.is_completed).length;
+  const outages = incidents.filter(item => item.is_outage).length;
+  const repeatPoles = poles.filter(p => p.repair_count >= 2).length;
+  const repairMedian = median(incidents.map(item => item.repair_hours));
+  const completionRate = incidents.length ? completed / incidents.length * 100 : 0;
+
+  el("summaryTickets").textContent = fmt.format(complaintCount(records));
+  el("summaryPoles").textContent = fmt.format(poles.length);
+  el("summaryRepairs").textContent = fmt.format(incidents.length);
+  el("summaryOutages").textContent = fmt.format(outages);
+  el("summaryRepeat").textContent = fmt.format(repeatPoles);
+  el("summaryMedian").textContent = repairMedian == null ? "–" : `${fmt1.format(repairMedian)} ชม.`;
+  el("summaryCompletion").textContent = `${fmt1.format(completionRate)}%`;
+  el("summaryCompletionRing").style.setProperty("--value", `${Math.max(0,Math.min(100,completionRate))}%`);
+
+  const districtRepairs = poles.reduce((counts, pole) => {
+    counts.set(pole.district, (counts.get(pole.district) || 0) + pole.repair_count);
+    return counts;
+  }, new Map());
+  const methodCounts = incidents.reduce((counts, incident) => {
+    const name = display(incident.repair_method);
+    counts.set(name, (counts.get(name) || 0) + 1);
+    return counts;
+  }, new Map());
+  const damageCounts = incidents.reduce((counts, incident) => {
+    const name = display(incident.damage_type);
+    counts.set(name, (counts.get(name) || 0) + 1);
+    return counts;
+  }, new Map());
+  const statusCounts = countBy(records, "complaint_status");
+  const districtEntries = [...districtRepairs.entries()].sort((a,b) => b[1]-a[1]);
+  const methodEntries = [...methodCounts.entries()].sort((a,b) => b[1]-a[1]);
+  const damageEntries = [...damageCounts.entries()].sort((a,b) => b[1]-a[1]);
+
+  renderSummaryBars("summaryDistricts", districtEntries);
+  renderSummaryBars("summaryMethods", methodEntries);
+  renderSummaryBars("summaryDamage", damageEntries);
+  renderSummaryBars("summaryStatuses", statusCounts);
+
+  const repeatRate = poles.length ? repeatPoles / poles.length * 100 : 0;
+  const topDistrict = districtEntries[0];
+  const topMethod = methodEntries[0];
+  const topDamage = damageEntries[0];
+  el("summaryInsights").innerHTML = [
+    topDistrict ? `<div class="summary-insight"><strong>${escapeHtml(topDistrict[0])}</strong> มีรอบซ่อมสูงสุด ${fmt.format(topDistrict[1])} รอบ</div>` : "",
+    topMethod ? `<div class="summary-insight">วิธีแก้ไขหลักคือ <strong>${escapeHtml(topMethod[0])}</strong> (${fmt.format(topMethod[1])} รอบ)</div>` : "",
+    topDamage ? `<div class="summary-insight">ความเสียหายที่พบบ่อยคือ <strong>${escapeHtml(topDamage[0])}</strong></div>` : "",
+    `<div class="summary-insight">เสาซ่อมซ้ำคิดเป็น <strong>${fmt1.format(repeatRate)}%</strong> ของเสาที่มีข้อมูล</div>`
+  ].filter(Boolean).join("");
+
+  const activeFilters = [
+    ["เขต", selected("districtFilter")], ["ชนิดโคม", selected("lampFilter")],
+    ["ความเสียหาย", selected("damageFilter")], ["อาการ", selected("symptomFilter")],
+    ["วิธีแก้ไข", selected("methodFilter")], ["สถานะ", selected("statusFilter")]
+  ].filter(([,value]) => value !== ALL_VALUE);
+  el("summaryScope").textContent = activeFilters.length
+    ? `ข้อมูลตามตัวกรอง: ${activeFilters.map(([label,value]) => `${label} ${value}`).join(" · ")}`
+    : "ภาพรวมข้อมูลทั้งหมดหลัง Data Cleaning";
+}
+
+function setAnalysisDashboardOpen(open) {
+  el("analysisDashboard").classList.toggle("open", open);
+  el("analysisBackdrop").classList.toggle("open", open);
+  el("analysisDashboard").setAttribute("aria-hidden", String(!open));
+  if (open) renderAnalysisDashboard(filteredRecords, [...poleIndex.values()]);
+}
+
 function setLayerVisibility(id, visible) {
   if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
 }
@@ -1418,6 +1620,7 @@ function updateDashboard({fit=false} = {}) {
   });
   updateMapData(filteredRecords, poles);
   syncRepairFilterButton();
+  if (el("analysisDashboard").classList.contains("open")) renderAnalysisDashboard(filteredRecords, poles);
   if (fit) fitToData(filteredRecords);
 }
 
@@ -1564,6 +1767,9 @@ el("exportButton").addEventListener("click", exportCsv);
 document.querySelectorAll(".mode-button").forEach(btn => btn.addEventListener("click", () => configureMode(btn.dataset.mode)));
 el("heatmapToggle").addEventListener("change", refreshLayerToggles);
 el("poleLocationToggle").addEventListener("change", refreshLayerToggles);
+el("analysisOpen").addEventListener("click", () => setAnalysisDashboardOpen(true));
+el("analysisClose").addEventListener("click", () => setAnalysisDashboardOpen(false));
+el("analysisBackdrop").addEventListener("click", () => setAnalysisDashboardOpen(false));
 el("repairFilterOpen").addEventListener("click", () => {
   el("repairMethodDrawerSelect").value = selected("methodFilter");
   setRepairDrawerOpen(true);
@@ -1582,7 +1788,10 @@ el("repairFilterClear").addEventListener("click", () => {
   setRepairDrawerOpen(false);
 });
 document.addEventListener("keydown", event => {
-  if (event.key === "Escape") setRepairDrawerOpen(false);
+  if (event.key === "Escape") {
+    setRepairDrawerOpen(false);
+    setAnalysisDashboardOpen(false);
+  }
 });
 ["districtFilter","lampFilter","damageFilter","symptomFilter","methodFilter","statusFilter","dateFrom","dateTo"]
   .forEach(id => el(id).addEventListener("change", () => updateDashboard({fit:false})));
