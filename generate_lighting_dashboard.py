@@ -1094,25 +1094,15 @@ function fillSelect(id, field) {
 }
 
 function fillRepairMethodDrawer() {
-  const counts = new Map();
-  RAW_RECORDS.forEach(record => {
-    const method = display(record.repair_method);
-    counts.set(method, (counts.get(method) || 0) + 1);
-  });
-  const options = [...counts.entries()].sort((a,b) => b[1] - a[1] || a[0].localeCompare(b[0], "th"));
+  const options = uniqueValues("repair_method");
   el("repairMethodDrawerSelect").innerHTML = `<option value="${ALL_VALUE}">ทั้งหมด</option>` +
-    options.map(([method, count]) => `<option value="${escapeHtml(method)}">${escapeHtml(method)} (${fmt.format(count)})</option>`).join("");
+    options.map(method => `<option value="${escapeHtml(method)}">${escapeHtml(method)}</option>`).join("");
 }
 
 function fillDistrictDrawer() {
-  const counts = new Map();
-  RAW_RECORDS.forEach(record => {
-    const district = display(record.district);
-    counts.set(district, (counts.get(district) || 0) + 1);
-  });
-  const options = [...counts.entries()].sort((a,b) => a[0].localeCompare(b[0], "th"));
+  const options = uniqueValues("district");
   el("districtDrawerSelect").innerHTML = `<option value="${ALL_VALUE}">ทุกเขต</option>` +
-    options.map(([district, count]) => `<option value="${escapeHtml(district)}">${escapeHtml(district)} (${fmt.format(count)})</option>`).join("");
+    options.map(district => `<option value="${escapeHtml(district)}">${escapeHtml(district)}</option>`).join("");
 }
 
 function setRepairDrawerOpen(open) {
