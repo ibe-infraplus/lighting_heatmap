@@ -645,6 +645,7 @@ HTML_TEMPLATE = r'''<!doctype html>
     .drawer-close::after { content: ""; width: 9px; height: 9px; border-top: 2px solid currentColor; border-right: 2px solid currentColor; transform: rotate(45deg); margin-right: 3px; }
     .drawer-close:hover { background: #c2d7f7; transform: translateX(2px); }
     .drawer-body { flex: 1; padding: 24px 20px; overflow: auto; }
+    .drawer-field + .drawer-field { margin-top: 20px; }
     .drawer-body label { display: block; margin-bottom: 9px; color: #3c4043; font-size: 12px; font-weight: 700; }
     .material-select { position: relative; }
     .drawer-body select { width: 100%; min-height: 56px; appearance: none; padding: 14px 44px 14px 16px; border: 1px solid #747775; border-radius: 12px; outline: none; background: #fefbff; color: #1f1f1f; font-size: 14px; transition: border .2s ease, box-shadow .2s ease; }
@@ -968,18 +969,24 @@ HTML_TEMPLATE = r'''<!doctype html>
         </div>
         <button class="repair-filter-trigger" id="repairFilterOpen" aria-controls="repairFilterDrawer" aria-expanded="false">
           <span class="filter-trigger-arrow" aria-hidden="true"></span>
-          <span class="filter-trigger-label" id="repairFilterOpenLabel">วิธีการแก้ไข</span>
+          <span class="filter-trigger-label" id="repairFilterOpenLabel">ตัวกรอง</span>
         </button>
         <div class="drawer-backdrop" id="repairFilterBackdrop"></div>
         <aside class="repair-drawer" id="repairFilterDrawer" aria-hidden="true">
           <div class="drawer-head">
-            <div class="drawer-title"><h2>วิธีการแก้ไข</h2><p>กรองข้อมูลบนแผนที่ทุกโหมด</p></div>
+            <div class="drawer-title"><h2>ตัวกรองข้อมูล</h2><p>กรองเขตและวิธีการแก้ไขบนแผนที่ทุกโหมด</p></div>
             <button class="drawer-close" id="repairFilterClose" type="button" aria-label="ปิดตัวกรอง"></button>
           </div>
           <div class="drawer-body">
-            <label for="repairMethodDrawerSelect">เลือกวิธีการแก้ไข</label>
-            <div class="material-select"><select id="repairMethodDrawerSelect"></select><span class="select-arrow">▼</span></div>
-            <div class="drawer-hint">เมื่อกดใช้ตัวกรอง แผนที่ Heatmap จุดเสา และยอดรวมรายเขตจะคำนวณใหม่ตามวิธีที่เลือก</div>
+            <div class="drawer-field">
+              <label for="districtDrawerSelect">เลือกเขต</label>
+              <div class="material-select"><select id="districtDrawerSelect"></select><span class="select-arrow">▼</span></div>
+            </div>
+            <div class="drawer-field">
+              <label for="repairMethodDrawerSelect">เลือกวิธีการแก้ไข</label>
+              <div class="material-select"><select id="repairMethodDrawerSelect"></select><span class="select-arrow">▼</span></div>
+            </div>
+            <div class="drawer-hint">เมื่อกดใช้ตัวกรอง แผนที่ Heatmap จุดเสา Cluster เขต และ Dashboard สรุปจะคำนวณใหม่ตามเขตและวิธีที่เลือก</div>
           </div>
           <div class="drawer-actions">
             <button class="clear" id="repairFilterClear" type="button">ล้างตัวกรอง</button>
@@ -1097,6 +1104,17 @@ function fillRepairMethodDrawer() {
     options.map(([method, count]) => `<option value="${escapeHtml(method)}">${escapeHtml(method)} (${fmt.format(count)})</option>`).join("");
 }
 
+function fillDistrictDrawer() {
+  const counts = new Map();
+  RAW_RECORDS.forEach(record => {
+    const district = display(record.district);
+    counts.set(district, (counts.get(district) || 0) + 1);
+  });
+  const options = [...counts.entries()].sort((a,b) => a[0].localeCompare(b[0], "th"));
+  el("districtDrawerSelect").innerHTML = `<option value="${ALL_VALUE}">ทุกเขต</option>` +
+    options.map(([district, count]) => `<option value="${escapeHtml(district)}">${escapeHtml(district)} (${fmt.format(count)})</option>`).join("");
+}
+
 function setRepairDrawerOpen(open) {
   el("repairFilterDrawer").classList.toggle("open", open);
   el("repairFilterBackdrop").classList.toggle("open", open);
@@ -1105,11 +1123,18 @@ function setRepairDrawerOpen(open) {
 }
 
 function syncRepairFilterButton() {
-  const value = selected("methodFilter");
-  const active = value !== ALL_VALUE;
+  const district = selected("districtFilter");
+  const method = selected("methodFilter");
+  const activeFilters = [
+    district !== ALL_VALUE ? `เขต ${district}` : "",
+    method !== ALL_VALUE ? method : ""
+  ].filter(Boolean);
+  const active = activeFilters.length > 0;
   el("repairFilterOpen").classList.toggle("active", active);
-  el("repairFilterOpenLabel").textContent = active ? value : "วิธีการแก้ไข";
-  el("repairFilterOpen").title = active ? value : "เปิดตัวกรองวิธีการแก้ไข";
+  el("repairFilterOpenLabel").textContent = active
+    ? (activeFilters.length > 1 ? `ตัวกรอง (${activeFilters.length})` : activeFilters[0])
+    : "ตัวกรอง";
+  el("repairFilterOpen").title = active ? activeFilters.join(" · ") : "เปิดตัวกรองข้อมูล";
 }
 
 function selected(id) { return el(id).value; }
@@ -1764,6 +1789,7 @@ fillSelect("symptomFilter", "symptom");
 fillSelect("methodFilter", "repair_method");
 fillSelect("statusFilter", "complaint_status");
 fillRepairMethodDrawer();
+fillDistrictDrawer();
 updateDashboard();
 
 // MapLibre map
@@ -1877,18 +1903,22 @@ el("analysisDetailClose").addEventListener("click", () => setAnalysisDetailOpen(
 el("analysisDetailBackdrop").addEventListener("click", () => setAnalysisDetailOpen(false));
 el("analysisDetailSearch").addEventListener("input", event => renderAnalysisDetailList(event.target.value));
 el("repairFilterOpen").addEventListener("click", () => {
+  el("districtDrawerSelect").value = selected("districtFilter");
   el("repairMethodDrawerSelect").value = selected("methodFilter");
   setRepairDrawerOpen(true);
 });
 el("repairFilterClose").addEventListener("click", () => setRepairDrawerOpen(false));
 el("repairFilterBackdrop").addEventListener("click", () => setRepairDrawerOpen(false));
 el("repairFilterApply").addEventListener("click", () => {
+  setSelected("districtFilter", el("districtDrawerSelect").value);
   setSelected("methodFilter", el("repairMethodDrawerSelect").value);
   updateDashboard({fit:true});
   setRepairDrawerOpen(false);
 });
 el("repairFilterClear").addEventListener("click", () => {
+  el("districtDrawerSelect").value = ALL_VALUE;
   el("repairMethodDrawerSelect").value = ALL_VALUE;
+  setSelected("districtFilter", ALL_VALUE);
   setSelected("methodFilter", ALL_VALUE);
   updateDashboard({fit:true});
   setRepairDrawerOpen(false);
