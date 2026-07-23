@@ -714,6 +714,8 @@ HTML_TEMPLATE = r'''<!doctype html>
     .summary-card h3 { margin: 0; font-size: 14px; }
     .summary-card-sub { margin: 4px 0 14px; color: #80868b; font-size: 10px; }
     .summary-bar-list { display: grid; gap: 10px; }
+    .summary-bar-row { padding: 5px 7px 7px; margin: -5px -7px -7px; border-radius: 10px; cursor: pointer; transition: background .18s ease, transform .18s ease; }
+    .summary-bar-row:hover { background: #f0f4f9; transform: translateX(2px); }
     .summary-bar-meta { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 4px; font-size: 11px; }
     .summary-bar-name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
     .summary-bar-value { flex: 0 0 auto; font-weight: 800; }
@@ -733,6 +735,37 @@ HTML_TEMPLATE = r'''<!doctype html>
     .summary-insights { display: grid; gap: 8px; }
     .summary-insight { padding: 9px 11px; border-radius: 12px; color: #3c4043; background: #f0f4f9; font-size: 11px; line-height: 1.45; }
     .summary-empty { padding: 18px 8px; color: #80868b; text-align: center; font-size: 12px; }
+    .analysis-detail-backdrop {
+      position: absolute; inset: 0; z-index: 34; opacity: 0; visibility: hidden;
+      background: rgba(32,33,36,.25); transition: opacity .26s ease, visibility .26s ease;
+    }
+    .analysis-detail-backdrop.open { opacity: 1; visibility: visible; }
+    .analysis-detail {
+      position: absolute; top: 0; right: 0; bottom: 0; z-index: 35; width: min(510px,94vw);
+      display: flex; flex-direction: column; overflow: hidden; background: #fefbff;
+      box-shadow: -8px 0 28px rgba(60,64,67,.24); transform: translateX(105%);
+      transition: transform .3s cubic-bezier(.2,0,0,1);
+    }
+    .analysis-detail.open { transform: translateX(0); }
+    .analysis-detail-head { display: flex; align-items: center; gap: 12px; padding: 17px 18px; color: #fff; background: #0b57d0; }
+    .analysis-detail-title { flex: 1; min-width: 0; }
+    .analysis-detail-title h3 { margin: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 16px; }
+    .analysis-detail-title p { margin: 4px 0 0; color: #d3e3fd; font-size: 11px; }
+    .analysis-detail-close { width: 40px; height: 40px; border: 0; border-radius: 50%; color: #fff; background: rgba(255,255,255,.16); cursor: pointer; font-size: 21px; }
+    .analysis-detail-search { padding: 14px 16px; border-bottom: 1px solid #e1e3e1; background: #fff; }
+    .analysis-detail-search input { width: 100%; min-height: 44px; padding: 10px 14px; border: 1px solid #747775; border-radius: 14px; outline: none; font: inherit; }
+    .analysis-detail-search input:focus { border: 2px solid #0b57d0; box-shadow: 0 0 0 3px rgba(11,87,208,.10); }
+    .analysis-detail-list { flex: 1; min-height: 0; overflow: auto; display: grid; align-content: start; gap: 9px; padding: 12px 14px 18px; }
+    .analysis-pole-row { padding: 12px 13px; border: 1px solid #e1e5eb; border-radius: 15px; background: #fff; box-shadow: 0 1px 2px rgba(60,64,67,.08); }
+    .analysis-pole-head { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+    .analysis-pole-head strong { color: #0b57d0; font-size: 13px; word-break: break-word; }
+    .analysis-pole-chip { flex: 0 0 auto; padding: 3px 8px; border-radius: 999px; color: #174ea6; background: #e8f0fe; font-size: 9px; font-weight: 800; }
+    .analysis-pole-meta { margin-top: 6px; color: #5f6368; font-size: 10px; line-height: 1.55; }
+    .analysis-pole-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin-top: 9px; }
+    .analysis-pole-stat { padding: 6px; border-radius: 9px; text-align: center; background: #f0f4f9; }
+    .analysis-pole-stat strong { display: block; color: #202124; font-size: 12px; }
+    .analysis-pole-stat span { color: #80868b; font-size: 8px; }
+    .analysis-detail-limit { padding: 9px 12px; border-radius: 12px; color: #5f6368; background: #f0f4f9; text-align: center; font-size: 10px; }
     @media (max-width: 1200px) {
       .summary-kpis { grid-template-columns: repeat(3,1fr); }
       .summary-grid { grid-template-columns: 1fr 1fr; }
@@ -983,6 +1016,15 @@ HTML_TEMPLATE = r'''<!doctype html>
               <article class="summary-card"><h3>สถานะข้อร้องเรียน</h3><div class="summary-card-sub">การกระจายของสถานะในข้อมูล</div><div class="summary-bar-list purple" id="summaryStatuses"></div></article>
             </div>
           </div>
+          <div class="analysis-detail-backdrop" id="analysisDetailBackdrop"></div>
+          <aside class="analysis-detail" id="analysisDetail" aria-hidden="true">
+            <div class="analysis-detail-head">
+              <div class="analysis-detail-title"><h3 id="analysisDetailTitle">รายละเอียดเสา</h3><p id="analysisDetailMeta"></p></div>
+              <button class="analysis-detail-close" id="analysisDetailClose" type="button" aria-label="ปิดรายละเอียด">✕</button>
+            </div>
+            <div class="analysis-detail-search"><input id="analysisDetailSearch" type="search" placeholder="ค้นหารหัสเสา เขต หรือชนิดโคม..." /></div>
+            <div class="analysis-detail-list" id="analysisDetailList"></div>
+          </aside>
         </section>
       </div>
     </section>
@@ -1023,6 +1065,7 @@ let selectedPoleKey = "";
 let districtMarkers = [];
 let districtMarkerMetric = "repair_count";
 let districtMarkersEnabled = false;
+let analysisDetailPoles = [];
 
 const el = id => document.getElementById(id);
 const clean = v => String(v ?? "").trim();
@@ -1349,7 +1392,7 @@ function renderBars(containerId, entries, cssClass, onClick) {
   container.querySelectorAll(".bar-row").forEach(row => row.addEventListener("click", () => onClick(row.dataset.name)));
 }
 
-function renderSummaryBars(containerId, entries, limit=7) {
+function renderSummaryBars(containerId, entries, kind, limit=7) {
   const container = el(containerId);
   const top = entries.filter(([,value]) => value > 0).slice(0, limit);
   if (!top.length) {
@@ -1358,10 +1401,69 @@ function renderSummaryBars(containerId, entries, limit=7) {
   }
   const max = Math.max(...top.map(([,value]) => value), 1);
   container.innerHTML = top.map(([name, value]) => `
-    <div>
+    <div class="summary-bar-row" data-name="${escapeHtml(name)}" data-value="${value}" title="คลิกเพื่อดูรายชื่อเสา">
       <div class="summary-bar-meta"><span class="summary-bar-name" title="${escapeHtml(name)}">${escapeHtml(name)}</span><span class="summary-bar-value">${fmt.format(value)}</span></div>
       <div class="summary-bar-track"><div class="summary-bar-fill" style="width:${Math.max(3,value/max*100)}%"></div></div>
     </div>`).join("");
+  container.querySelectorAll(".summary-bar-row").forEach(row => {
+    row.addEventListener("click", () => openAnalysisDetails(kind, row.dataset.name, Number(row.dataset.value)));
+  });
+}
+
+function setAnalysisDetailOpen(open) {
+  el("analysisDetail").classList.toggle("open", open);
+  el("analysisDetailBackdrop").classList.toggle("open", open);
+  el("analysisDetail").setAttribute("aria-hidden", String(!open));
+}
+
+function renderAnalysisDetailList(query="") {
+  const needle = clean(query).toLowerCase();
+  const matching = needle ? analysisDetailPoles.filter(pole => [
+    pole.pole_code, pole.pole_key, pole.district, pole.lamp_type, pole.top_method
+  ].some(value => clean(value).toLowerCase().includes(needle))) : analysisDetailPoles;
+  const visible = matching.slice(0, 500);
+  const rows = visible.map(pole => {
+    const code = display(pole.pole_code) === UNKNOWN ? pole.pole_key : pole.pole_code;
+    return `<article class="analysis-pole-row">
+      <div class="analysis-pole-head"><strong>${escapeHtml(code)}</strong><span class="analysis-pole-chip">${escapeHtml(display(pole.district))}</span></div>
+      <div class="analysis-pole-meta">${escapeHtml(display(pole.lamp_type))} · วิธีแก้ไขหลัก: ${escapeHtml(display(pole.top_method))}</div>
+      <div class="analysis-pole-stats">
+        <div class="analysis-pole-stat"><strong>${fmt.format(pole.repair_count)}</strong><span>รอบซ่อม</span></div>
+        <div class="analysis-pole-stat"><strong>${fmt.format(pole.outage_count)}</strong><span>ครั้งไฟดับ</span></div>
+        <div class="analysis-pole-stat"><strong>${fmt.format(pole.complaint_count)}</strong><span>ข้อร้องเรียน</span></div>
+      </div>
+    </article>`;
+  }).join("");
+  const limitNote = matching.length > 500
+    ? `<div class="analysis-detail-limit">แสดง 500 จาก ${fmt.format(matching.length)} เสา — ใช้ช่องค้นหาเพื่อระบุรหัสเสา</div>`
+    : "";
+  el("analysisDetailList").innerHTML = rows + limitNote ||
+    `<div class="summary-empty">ไม่พบเสาที่ตรงกับคำค้นหา</div>`;
+}
+
+function openAnalysisDetails(kind, name, sourceCount) {
+  const poles = [...poleIndex.values()];
+  let matched = [];
+  if (kind === "district") {
+    matched = poles.filter(pole => pole.district === name);
+  } else if (kind === "method") {
+    matched = poles.filter(pole => pole.incidents.some(incident => display(incident.repair_method) === name));
+  } else if (kind === "damage") {
+    matched = poles.filter(pole => pole.incidents.some(incident => display(incident.damage_type) === name));
+  } else if (kind === "status") {
+    const keys = new Set(filteredRecords.filter(record => display(record.complaint_status) === name).map(record => record.pole_key));
+    matched = poles.filter(pole => keys.has(pole.pole_key));
+  }
+  analysisDetailPoles = matched.sort((a,b) =>
+    b.repair_count - a.repair_count || b.complaint_count - a.complaint_count ||
+    String(a.pole_code).localeCompare(String(b.pole_code), "th")
+  );
+  const labels = {district:"เขต", method:"วิธีแก้ไข", damage:"ประเภทความเสียหาย", status:"สถานะ"};
+  el("analysisDetailTitle").textContent = `${labels[kind] || "รายละเอียด"}: ${name}`;
+  el("analysisDetailMeta").textContent = `${fmt.format(analysisDetailPoles.length)} เสา · ${fmt.format(sourceCount)} รายการในกราฟ`;
+  el("analysisDetailSearch").value = "";
+  renderAnalysisDetailList();
+  setAnalysisDetailOpen(true);
 }
 
 function renderAnalysisDashboard(records, poles) {
@@ -1400,10 +1502,10 @@ function renderAnalysisDashboard(records, poles) {
   const methodEntries = [...methodCounts.entries()].sort((a,b) => b[1]-a[1]);
   const damageEntries = [...damageCounts.entries()].sort((a,b) => b[1]-a[1]);
 
-  renderSummaryBars("summaryDistricts", districtEntries);
-  renderSummaryBars("summaryMethods", methodEntries);
-  renderSummaryBars("summaryDamage", damageEntries);
-  renderSummaryBars("summaryStatuses", statusCounts);
+  renderSummaryBars("summaryDistricts", districtEntries, "district");
+  renderSummaryBars("summaryMethods", methodEntries, "method");
+  renderSummaryBars("summaryDamage", damageEntries, "damage");
+  renderSummaryBars("summaryStatuses", statusCounts, "status");
 
   const repeatRate = poles.length ? repeatPoles / poles.length * 100 : 0;
   const topDistrict = districtEntries[0];
@@ -1430,6 +1532,7 @@ function setAnalysisDashboardOpen(open) {
   el("analysisDashboard").classList.toggle("open", open);
   el("analysisBackdrop").classList.toggle("open", open);
   el("analysisDashboard").setAttribute("aria-hidden", String(!open));
+  if (!open) setAnalysisDetailOpen(false);
   if (open) renderAnalysisDashboard(filteredRecords, [...poleIndex.values()]);
 }
 
@@ -1770,6 +1873,9 @@ el("poleLocationToggle").addEventListener("change", refreshLayerToggles);
 el("analysisOpen").addEventListener("click", () => setAnalysisDashboardOpen(true));
 el("analysisClose").addEventListener("click", () => setAnalysisDashboardOpen(false));
 el("analysisBackdrop").addEventListener("click", () => setAnalysisDashboardOpen(false));
+el("analysisDetailClose").addEventListener("click", () => setAnalysisDetailOpen(false));
+el("analysisDetailBackdrop").addEventListener("click", () => setAnalysisDetailOpen(false));
+el("analysisDetailSearch").addEventListener("input", event => renderAnalysisDetailList(event.target.value));
 el("repairFilterOpen").addEventListener("click", () => {
   el("repairMethodDrawerSelect").value = selected("methodFilter");
   setRepairDrawerOpen(true);
@@ -1790,7 +1896,8 @@ el("repairFilterClear").addEventListener("click", () => {
 document.addEventListener("keydown", event => {
   if (event.key === "Escape") {
     setRepairDrawerOpen(false);
-    setAnalysisDashboardOpen(false);
+    if (el("analysisDetail").classList.contains("open")) setAnalysisDetailOpen(false);
+    else setAnalysisDashboardOpen(false);
   }
 });
 ["districtFilter","lampFilter","damageFilter","symptomFilter","methodFilter","statusFilter","dateFrom","dateTo"]
