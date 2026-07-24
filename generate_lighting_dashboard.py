@@ -983,7 +983,7 @@ HTML_TEMPLATE = r'''<!doctype html>
         <div class="kpi"><div class="label">เสาไฟไม่ซ้ำ</div><div class="value" id="kpiPoles">0</div><div class="sub">ยึดรหัสเสาไฟเป็นหลัก</div></div>
         <div class="kpi"><div class="label">ครั้งที่ไฟดับ</div><div class="value" id="kpiOutages">0</div><div class="sub">รวมข้อร้องเรียนในรอบซ่อมเดียวกัน</div></div>
         <div class="kpi"><div class="label">อัตราปิดงานซ่อม</div><div class="value" id="kpiCompleted">0%</div><div class="sub">คำนวณจากรอบการซ่อม</div></div>
-        <div class="kpi"><div class="label">เวลาซ่อมค่ากลาง</div><div class="value" id="kpiMedian">–</div><div class="sub">Median ชั่วโมง</div></div>
+        <div class="kpi"><div class="label">เวลาซ่อมโดยทั่วไป</div><div class="value" id="kpiMedian">–</div><div class="sub">ค่ากลางของเวลาซ่อม</div></div>
         <div class="kpi"><div class="label">เสาซ่อมซ้ำ</div><div class="value" id="kpiRepeat">0</div><div class="sub">มีมากกว่า 1 รอบซ่อม</div></div>
       </div>
 
@@ -1040,29 +1040,29 @@ HTML_TEMPLATE = r'''<!doctype html>
         <section class="analysis-dashboard" id="analysisDashboard" aria-hidden="true">
           <div class="analysis-head">
             <div class="analysis-head-icon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 19h16v2H4zM6 10h3v7H6zm5-5h3v12h-3zm5 8h3v4h-3z"/></svg></div>
-            <div class="analysis-head-copy"><h2>Lighting Maintenance Overview</h2><p id="summaryScope">ภาพรวมข้อมูลที่กำลังแสดงบนแผนที่</p></div>
-            <button class="analysis-close" id="analysisClose" type="button" aria-label="ปิด Dashboard">✕</button>
+            <div class="analysis-head-copy"><h2>ภาพรวมงานซ่อมไฟส่องสว่าง</h2><p id="summaryScope">สรุปข้อมูลที่กำลังแสดงบนแผนที่</p></div>
+            <button class="analysis-close" id="analysisClose" type="button" aria-label="ปิดหน้าสรุป">✕</button>
           </div>
           <div class="analysis-content">
             <div class="summary-kpis">
-              <div class="summary-kpi"><div class="summary-kpi-label">ข้อร้องเรียน</div><div class="summary-kpi-value" id="summaryTickets">0</div><div class="summary-kpi-note">Ticket ID ไม่ซ้ำ</div></div>
-              <div class="summary-kpi"><div class="summary-kpi-label">จำนวนเสา</div><div class="summary-kpi-value" id="summaryPoles">0</div><div class="summary-kpi-note">รหัสเสาไม่ซ้ำ</div></div>
-              <div class="summary-kpi"><div class="summary-kpi-label">รอบการซ่อม</div><div class="summary-kpi-value" id="summaryRepairs">0</div><div class="summary-kpi-note">รวมทุกเหตุซ่อม</div></div>
-              <div class="summary-kpi"><div class="summary-kpi-label">ครั้งที่ไฟดับ</div><div class="summary-kpi-value" id="summaryOutages">0</div><div class="summary-kpi-note">เหตุไฟดับจริง</div></div>
-              <div class="summary-kpi"><div class="summary-kpi-label">เสาไฟดับซ้ำ</div><div class="summary-kpi-value" id="summaryRepeat">0</div><div class="summary-kpi-note">ไฟดับตั้งแต่ 2 ครั้งขึ้นไป</div></div>
-              <div class="summary-kpi"><div class="summary-kpi-label">เวลาซ่อมค่ากลาง</div><div class="summary-kpi-value" id="summaryMedian">–</div><div class="summary-kpi-note">Median ชั่วโมง</div></div>
+              <div class="summary-kpi"><div class="summary-kpi-label">ข้อร้องเรียนทั้งหมด</div><div class="summary-kpi-value" id="summaryTickets">0</div><div class="summary-kpi-note">นับเลข Ticket ไม่ซ้ำกัน</div></div>
+              <div class="summary-kpi"><div class="summary-kpi-label">เสาไฟที่มีข้อมูล</div><div class="summary-kpi-value" id="summaryPoles">0</div><div class="summary-kpi-note">นับรหัสเสาไม่ซ้ำกัน</div></div>
+              <div class="summary-kpi"><div class="summary-kpi-label">งานซ่อมทั้งหมด</div><div class="summary-kpi-value" id="summaryRepairs">0</div><div class="summary-kpi-note">นับตามรอบที่เข้าซ่อม</div></div>
+              <div class="summary-kpi"><div class="summary-kpi-label">เหตุไฟดับทั้งหมด</div><div class="summary-kpi-value" id="summaryOutages">0</div><div class="summary-kpi-note">นับหนึ่งครั้งต่อรอบงาน</div></div>
+              <div class="summary-kpi"><div class="summary-kpi-label">เสาที่ไฟดับซ้ำ</div><div class="summary-kpi-value" id="summaryRepeat">0</div><div class="summary-kpi-note">ไฟดับตั้งแต่ 2 ครั้งขึ้นไป</div></div>
+              <div class="summary-kpi"><div class="summary-kpi-label">เวลาซ่อมโดยทั่วไป</div><div class="summary-kpi-value" id="summaryMedian">–</div><div class="summary-kpi-note">ค่ากลางของเวลาซ่อม</div></div>
             </div>
             <div class="summary-grid">
               <article class="summary-card">
-                <h3>ภาพรวมประสิทธิผล</h3><div class="summary-card-sub">อัตราปิดงานและ Insight จากข้อมูลปัจจุบัน</div>
+                <h3>สรุปผลการดำเนินงาน</h3><div class="summary-card-sub">อัตราปิดงานและประเด็นสำคัญจากข้อมูล</div>
                 <div class="summary-overview"><div class="summary-ring" id="summaryCompletionRing"><span class="summary-ring-value" id="summaryCompletion">0%</span></div><div class="summary-insights" id="summaryInsights"></div></div>
               </article>
-              <article class="summary-card"><h3>สาเหตุไฟดับที่อนุมาน</h3><div class="summary-card-sub">จัดกลุ่มจากวิธีแก้ไขและรายละเอียดหน้างาน</div><div class="summary-proxy-note">เป็น Cause Proxy เพื่อชี้ทิศทางวิเคราะห์ ไม่ใช่ Root Cause ที่ยืนยันแล้ว</div><div class="summary-bar-list red" id="summaryCauses"></div></article>
-              <article class="summary-card"><h3>เขตเสี่ยงไฟดับซ้ำ</h3><div class="summary-card-sub">สัดส่วนเสาที่ไฟดับตั้งแต่ 2 ครั้งต่อเสาในเขต</div><div class="risk-list" id="summaryDistrictRisk"></div></article>
-              <article class="summary-card summary-span-2"><h3>แนวโน้มเหตุไฟดับรายเดือน</h3><div class="summary-card-sub">นับหนึ่งครั้งต่อรอบการซ่อม ใช้ดูแนวโน้มและความผิดปกติตามเวลา</div><div class="trend-chart" id="summaryTrend"></div><div class="trend-foot" id="summaryTrendFoot"></div></article>
-              <article class="summary-card"><h3>วิธีการแก้ไขที่พบบ่อย</h3><div class="summary-card-sub">นับหนึ่งครั้งต่อรอบการซ่อม</div><div class="summary-bar-list green" id="summaryMethods"></div></article>
-              <article class="summary-card summary-span-2"><h3>Heatmap เขต × สาเหตุไฟดับ</h3><div class="summary-card-sub">สีเข้มหมายถึงจำนวนเหตุในกลุ่มนั้นสูง คลิกช่องเพื่อดูรายชื่อเสา</div><div class="matrix-wrap" id="summaryCauseMatrix"></div></article>
-              <article class="summary-card"><h3>คุณภาพข้อมูลสำหรับวิเคราะห์สาเหตุ</h3><div class="summary-card-sub">ความครบถ้วนของฟิลด์สำคัญในข้อมูลที่กรอง</div><div class="quality-list" id="summaryDataQuality"></div><div class="quality-caption">ควรเพิ่มช่อง “Root Cause ที่ยืนยันแล้ว” ในแหล่งข้อมูล เพื่อแยกสาเหตุจริงออกจากอาการและวิธีแก้ไข</div></article>
+              <article class="summary-card"><h3>ปัญหาที่คาดว่าทำให้ไฟดับ</h3><div class="summary-card-sub">ประเมินจากวิธีแก้ไขและรายละเอียดที่ช่างบันทึก</div><div class="summary-proxy-note">หมายเหตุ: เป็นการประเมินจากข้อมูลงานซ่อม ยังไม่ใช่สาเหตุที่ได้รับการยืนยัน</div><div class="summary-bar-list red" id="summaryCauses"></div></article>
+              <article class="summary-card"><h3>เขตที่มีเสาไฟดับซ้ำสูง</h3><div class="summary-card-sub">เปอร์เซ็นต์เสาที่ไฟดับตั้งแต่ 2 ครั้งขึ้นไปในแต่ละเขต</div><div class="risk-list" id="summaryDistrictRisk"></div></article>
+              <article class="summary-card summary-span-2"><h3>จำนวนเหตุไฟดับรายเดือน</h3><div class="summary-card-sub">ใช้ดูว่าเดือนไหนมีเหตุไฟดับเพิ่มขึ้นหรือลดลง</div><div class="trend-chart" id="summaryTrend"></div><div class="trend-foot" id="summaryTrendFoot"></div></article>
+              <article class="summary-card"><h3>วิธีแก้ไขที่ใช้บ่อย</h3><div class="summary-card-sub">จำนวนครั้งที่ใช้วิธีแก้ไขแต่ละแบบ</div><div class="summary-bar-list green" id="summaryMethods"></div></article>
+              <article class="summary-card summary-span-2"><h3>ปัญหาที่พบบ่อยในแต่ละเขต</h3><div class="summary-card-sub">สีเข้มหมายถึงพบมาก คลิกตัวเลขเพื่อดูรายชื่อเสา</div><div class="matrix-wrap" id="summaryCauseMatrix"></div></article>
+              <article class="summary-card"><h3>ความครบถ้วนของข้อมูล</h3><div class="summary-card-sub">ตรวจว่ามีข้อมูลเพียงพอสำหรับค้นหาสาเหตุไฟดับหรือไม่</div><div class="quality-list" id="summaryDataQuality"></div><div class="quality-caption">ข้อเสนอแนะ: เพิ่มช่อง “สาเหตุที่ยืนยันแล้ว” ใน Excel เพื่อแยกสาเหตุจริงออกจากอาการและวิธีแก้ไข</div></article>
             </div>
           </div>
           <div class="analysis-detail-backdrop" id="analysisDetailBackdrop"></div>
@@ -1471,30 +1471,30 @@ function renderSummaryBars(containerId, entries, kind, limit=7) {
 
 function outageCause(incident) {
   const parts = [incident.repair_method, incident.details].map(clean).filter(value => value && value !== UNKNOWN);
-  if (!parts.length) return "ไม่สามารถระบุสาเหตุ";
+  if (!parts.length) return "ยังระบุปัญหาไม่ได้";
   const text = parts.join(" ").toLowerCase();
   if (["การไฟฟ้านครหลวง","กฟน.","ระบบไฟฟ้าภายนอก","ไม่เกี่ยวข้องกับระบบ"].some(v => text.includes(v))) {
-    return "ระบบไฟฟ้าภายนอก";
+    return "ปัญหาจากระบบไฟฟ้าภายนอก";
   }
   if (["เสิร์จ","เซิร์จ","surge","ฟิวส์","เบรกเกอร์","อุปกรณ์ป้องกัน"].some(v => text.includes(v))) {
     return "อุปกรณ์ป้องกันไฟฟ้า";
   }
   if (["ขั้วต่อ","จุดต่อ","คอนเนคเตอร์","connector"].some(v => text.includes(v))) {
-    return "ขั้วต่อ / จุดต่อ";
+    return "ขั้วต่อหรือจุดต่อสายไฟ";
   }
   if (["สายไฟ","สายเมน","สาย l","สาย n","วงจร","สายขาด","สายโดนตัด"].some(v => text.includes(v))) {
-    return "สายไฟ / วงจร";
+    return "สายไฟหรือวงจร";
   }
   if (["ทำความสะอาด","สิ่งสกปรก","คราบ","รังนก"].some(v => text.includes(v))) {
-    return "สิ่งสกปรก / บำรุงรักษา";
+    return "สิ่งสกปรกหรือขาดการบำรุงรักษา";
   }
   if (["ติดตั้ง","รูปแบบการติดตั้ง","เสาไฟใหม่"].some(v => text.includes(v))) {
-    return "การติดตั้ง / โครงสร้าง";
+    return "การติดตั้งหรือโครงสร้าง";
   }
   if (["โคม","หลอด","สตาร์ทเตอร์","บัลลาสต์"].some(v => text.includes(v))) {
-    return "โคม / หลอดไฟ";
+    return "โคมหรือหลอดไฟ";
   }
-  return "อื่น ๆ / ไม่ชัดเจน";
+  return "ปัญหาอื่น ๆ ที่ยังไม่ชัดเจน";
 }
 
 function renderCauseBars(entries, total) {
@@ -1527,7 +1527,7 @@ function renderDistrictRisk(entries) {
   const maxRate = Math.max(...top.map(item => item.rate), 1);
   container.innerHTML = top.map(item => `
     <div class="risk-row" data-name="${escapeHtml(item.district)}" data-count="${item.outages}" title="คลิกเพื่อดูรายชื่อเสาในเขต">
-      <div class="risk-meta"><strong>${escapeHtml(item.district)}</strong><span>${fmt1.format(item.rate)}% · ${fmt.format(item.repeatPoles)} เสาซ้ำ</span></div>
+      <div class="risk-meta"><strong>${escapeHtml(item.district)}</strong><span>${fmt1.format(item.rate)}% · ${fmt.format(item.repeatPoles)} เสา</span></div>
       <div class="risk-track"><div class="risk-fill" style="width:${Math.max(3,item.rate/maxRate*100)}%"></div></div>
     </div>`).join("");
   container.querySelectorAll(".risk-row").forEach(row => {
@@ -1585,7 +1585,7 @@ function renderOutageTrend(incidents) {
     return `<text class="trend-axis-label" x="${point.x}" y="${height-13}" text-anchor="middle">${thaiMonths[month-1]} ${yearShort}</text>
       <circle class="trend-point" cx="${point.x}" cy="${point.y}" r="4"><title>${point.month}: ${fmt.format(point.value)} เหตุ</title></circle>`;
   }).join("");
-  container.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="แนวโน้มเหตุไฟดับรายเดือน">
+  container.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="จำนวนเหตุไฟดับรายเดือน">
     <defs><linearGradient id="outageAreaGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f28b82" stop-opacity=".45"/><stop offset="100%" stop-color="#f28b82" stop-opacity=".04"/></linearGradient></defs>
     ${grid}<path class="trend-area" d="${areaPath}"></path><path class="trend-line" d="${linePath}"></path>${labels}
   </svg>`;
@@ -1643,10 +1643,10 @@ function renderDataQuality(records, incidents, poles) {
     return detail && detail !== UNKNOWN && detail !== "ไฟดับ";
   };
   const metrics = [
-    ["รายละเอียดสาเหตุหน้างาน", outages.filter(hasDetail).length, outages.length],
-    ["วิธีแก้ไข", outages.filter(item => display(item.repair_method) !== UNKNOWN).length, outages.length],
-    ["ช่วงเวลาและเวลาซ่อม", incidents.filter(item => Number.isFinite(item.repair_hours)).length, incidents.length],
-    ["เขตพื้นที่", poles.filter(pole => display(pole.district) !== UNKNOWN).length, poles.length]
+    ["มีรายละเอียดที่ช่างบันทึก", outages.filter(hasDetail).length, outages.length],
+    ["มีข้อมูลวิธีแก้ไข", outages.filter(item => display(item.repair_method) !== UNKNOWN).length, outages.length],
+    ["มีข้อมูลวันที่และเวลาซ่อม", incidents.filter(item => Number.isFinite(item.repair_hours)).length, incidents.length],
+    ["มีข้อมูลเขตพื้นที่", poles.filter(pole => display(pole.district) !== UNKNOWN).length, poles.length]
   ];
   el("summaryDataQuality").innerHTML = metrics.map(([label,value,total]) => {
     const percent = total ? value / total * 100 : 0;
@@ -1710,7 +1710,7 @@ function openAnalysisDetails(kind, name, sourceCount, context={}) {
   );
   const labels = {
     district:"เขต", method:"วิธีแก้ไข", damage:"ประเภทความเสียหาย",
-    status:"สถานะ", cause:"สาเหตุที่อนุมาน", districtCause:"เขต × สาเหตุ"
+    status:"สถานะ", cause:"ปัญหาที่คาดว่าเป็นสาเหตุ", districtCause:"เขตและปัญหาที่พบ"
   };
   el("analysisDetailTitle").textContent = `${labels[kind] || "รายละเอียด"}: ${name}`;
   el("analysisDetailMeta").textContent = `${fmt.format(analysisDetailPoles.length)} เสา · ${fmt.format(sourceCount)} รายการในกราฟ`;
@@ -1777,10 +1777,10 @@ function renderAnalysisDashboard(records, poles) {
   }).length;
   const detailRate = outages ? detailedOutages / outages * 100 : 0;
   el("summaryInsights").innerHTML = [
-    topCause ? `<div class="summary-insight">Cause Proxy หลักคือ <strong>${escapeHtml(topCause[0])}</strong> (${fmt1.format(outages ? topCause[1]/outages*100 : 0)}%)</div>` : "",
-    topRiskDistrict ? `<div class="summary-insight"><strong>${escapeHtml(topRiskDistrict.district)}</strong> มีสัดส่วนเสาไฟดับซ้ำสูงสุด ${fmt1.format(topRiskDistrict.rate)}%</div>` : "",
-    `<div class="summary-insight">รายละเอียดหน้างานที่ช่วยยืนยันสาเหตุมีเพียง <strong>${fmt1.format(detailRate)}%</strong></div>`,
-    `<div class="summary-insight">เสาไฟดับซ้ำคิดเป็น <strong>${fmt1.format(repeatRate)}%</strong> ของเสาที่มีข้อมูล</div>`
+    topCause ? `<div class="summary-insight">ปัญหาที่พบมากที่สุดคือ <strong>${escapeHtml(topCause[0])}</strong> (${fmt1.format(outages ? topCause[1]/outages*100 : 0)}%)</div>` : "",
+    topRiskDistrict ? `<div class="summary-insight">เขตที่มีสัดส่วนเสาไฟดับซ้ำสูงสุดคือ <strong>${escapeHtml(topRiskDistrict.district)}</strong> (${fmt1.format(topRiskDistrict.rate)}%)</div>` : "",
+    `<div class="summary-insight">มีรายละเอียดที่ช่างบันทึกเพียง <strong>${fmt1.format(detailRate)}%</strong> จึงยังระบุสาเหตุได้ไม่ครบ</div>`,
+    `<div class="summary-insight">เสาที่ไฟดับซ้ำคิดเป็น <strong>${fmt1.format(repeatRate)}%</strong> ของเสาทั้งหมด</div>`
   ].filter(Boolean).join("");
 
   const activeFilters = [
@@ -1790,7 +1790,7 @@ function renderAnalysisDashboard(records, poles) {
   ].filter(([,value]) => value !== ALL_VALUE);
   el("summaryScope").textContent = activeFilters.length
     ? `ข้อมูลตามตัวกรอง: ${activeFilters.map(([label,value]) => `${label} ${value}`).join(" · ")}`
-    : "ภาพรวมข้อมูลทั้งหมดหลัง Data Cleaning";
+    : "ข้อมูลทั้งหมดหลังตัดรายการที่ไม่พบความเสียหาย";
 }
 
 function setAnalysisDashboardOpen(open) {
