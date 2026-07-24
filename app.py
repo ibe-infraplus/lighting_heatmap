@@ -243,6 +243,7 @@ def create_app() -> Flask:
             "img-src 'self' data: blob: https:; "
             "connect-src 'self' https:; "
             "font-src 'self' data: https:; "
+            "worker-src 'self' blob:; "
             "frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
         )
         if request.endpoint in {"login", "dashboard"}:
