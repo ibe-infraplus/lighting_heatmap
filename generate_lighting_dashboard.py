@@ -706,14 +706,14 @@ HTML_TEMPLATE = r'''<!doctype html>
     }
     .summary-kpi-label { color: #5f6368; font-size: 11px; font-weight: 700; }
     .summary-kpi-value { margin-top: 7px; color: #202124; font-size: 25px; font-weight: 800; letter-spacing: -.5px; }
-    .summary-kpi-note { margin-top: 3px; color: #80868b; font-size: 10px; }
     .summary-grid { display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 14px; margin-top: 14px; }
     .summary-card {
       min-width: 0; padding: 16px 17px; border: 1px solid #e1e5eb; border-radius: 20px;
       background: #fff; box-shadow: 0 1px 3px rgba(60,64,67,.10);
     }
     .summary-card h3 { margin: 0; font-size: 14px; }
-    .summary-card-sub { margin: 4px 0 14px; color: #80868b; font-size: 10px; }
+    .summary-card > .summary-overview, .summary-card > .summary-bar-list, .summary-card > .risk-list,
+    .summary-card > .trend-chart, .summary-card > .matrix-wrap, .summary-card > .quality-list { margin-top: 14px; }
     .summary-bar-list { display: grid; gap: 10px; }
     .summary-bar-row { padding: 5px 7px 7px; margin: -5px -7px -7px; border-radius: 10px; cursor: pointer; transition: background .18s ease, transform .18s ease; }
     .summary-bar-row:hover { background: #f0f4f9; transform: translateX(2px); }
@@ -738,7 +738,7 @@ HTML_TEMPLATE = r'''<!doctype html>
     .summary-insights { display: grid; gap: 8px; }
     .summary-insight { padding: 9px 11px; border-radius: 12px; color: #3c4043; background: #f0f4f9; font-size: 11px; line-height: 1.45; }
     .summary-proxy-note {
-      margin: -4px 0 12px; padding: 8px 10px; border-radius: 11px; color: #8a4b08;
+      margin: 12px 0; padding: 8px 10px; border-radius: 11px; color: #8a4b08;
       background: #fff4e5; font-size: 10px; line-height: 1.45;
     }
     .cause-value { display: inline-flex; gap: 5px; align-items: baseline; }
@@ -1045,24 +1045,24 @@ HTML_TEMPLATE = r'''<!doctype html>
           </div>
           <div class="analysis-content">
             <div class="summary-kpis">
-              <div class="summary-kpi"><div class="summary-kpi-label">ข้อร้องเรียนทั้งหมด</div><div class="summary-kpi-value" id="summaryTickets">0</div><div class="summary-kpi-note">นับเลข Ticket ไม่ซ้ำกัน</div></div>
-              <div class="summary-kpi"><div class="summary-kpi-label">เสาไฟที่มีข้อมูล</div><div class="summary-kpi-value" id="summaryPoles">0</div><div class="summary-kpi-note">นับรหัสเสาไม่ซ้ำกัน</div></div>
-              <div class="summary-kpi"><div class="summary-kpi-label">งานซ่อมทั้งหมด</div><div class="summary-kpi-value" id="summaryRepairs">0</div><div class="summary-kpi-note">นับตามรอบที่เข้าซ่อม</div></div>
-              <div class="summary-kpi"><div class="summary-kpi-label">เหตุไฟดับทั้งหมด</div><div class="summary-kpi-value" id="summaryOutages">0</div><div class="summary-kpi-note">นับหนึ่งครั้งต่อรอบงาน</div></div>
-              <div class="summary-kpi"><div class="summary-kpi-label">เสาที่ไฟดับซ้ำ</div><div class="summary-kpi-value" id="summaryRepeat">0</div><div class="summary-kpi-note">ไฟดับตั้งแต่ 2 ครั้งขึ้นไป</div></div>
-              <div class="summary-kpi"><div class="summary-kpi-label">เวลาซ่อมโดยทั่วไป</div><div class="summary-kpi-value" id="summaryMedian">–</div><div class="summary-kpi-note">ค่ากลางของเวลาซ่อม</div></div>
+              <div class="summary-kpi"><div class="summary-kpi-label">ข้อร้องเรียนทั้งหมด</div><div class="summary-kpi-value" id="summaryTickets">0</div></div>
+              <div class="summary-kpi"><div class="summary-kpi-label">เสาไฟที่มีข้อมูล</div><div class="summary-kpi-value" id="summaryPoles">0</div></div>
+              <div class="summary-kpi"><div class="summary-kpi-label">งานซ่อมทั้งหมด</div><div class="summary-kpi-value" id="summaryRepairs">0</div></div>
+              <div class="summary-kpi"><div class="summary-kpi-label">เหตุไฟดับทั้งหมด</div><div class="summary-kpi-value" id="summaryOutages">0</div></div>
+              <div class="summary-kpi"><div class="summary-kpi-label">เสาที่ไฟดับซ้ำ</div><div class="summary-kpi-value" id="summaryRepeat">0</div></div>
+              <div class="summary-kpi"><div class="summary-kpi-label">เวลาซ่อมโดยทั่วไป</div><div class="summary-kpi-value" id="summaryMedian">–</div></div>
             </div>
             <div class="summary-grid">
               <article class="summary-card">
-                <h3>สรุปผลการดำเนินงาน</h3><div class="summary-card-sub">อัตราปิดงานและประเด็นสำคัญจากข้อมูล</div>
+                <h3>สรุปผลการดำเนินงาน</h3>
                 <div class="summary-overview"><div class="summary-ring" id="summaryCompletionRing"><span class="summary-ring-value" id="summaryCompletion">0%</span></div><div class="summary-insights" id="summaryInsights"></div></div>
               </article>
-              <article class="summary-card"><h3>ปัญหาที่คาดว่าทำให้ไฟดับ</h3><div class="summary-card-sub">ประเมินจากวิธีแก้ไขและรายละเอียดที่ช่างบันทึก</div><div class="summary-proxy-note">หมายเหตุ: เป็นการประเมินจากข้อมูลงานซ่อม ยังไม่ใช่สาเหตุที่ได้รับการยืนยัน</div><div class="summary-bar-list red" id="summaryCauses"></div></article>
-              <article class="summary-card"><h3>เขตที่มีเสาไฟดับซ้ำสูง</h3><div class="summary-card-sub">เปอร์เซ็นต์เสาที่ไฟดับตั้งแต่ 2 ครั้งขึ้นไปในแต่ละเขต</div><div class="risk-list" id="summaryDistrictRisk"></div></article>
-              <article class="summary-card summary-span-2"><h3>จำนวนเหตุไฟดับรายเดือน</h3><div class="summary-card-sub">ใช้ดูว่าเดือนไหนมีเหตุไฟดับเพิ่มขึ้นหรือลดลง</div><div class="trend-chart" id="summaryTrend"></div><div class="trend-foot" id="summaryTrendFoot"></div></article>
-              <article class="summary-card"><h3>วิธีแก้ไขที่ใช้บ่อย</h3><div class="summary-card-sub">จำนวนครั้งที่ใช้วิธีแก้ไขแต่ละแบบ</div><div class="summary-bar-list green" id="summaryMethods"></div></article>
-              <article class="summary-card summary-span-2"><h3>ปัญหาที่พบบ่อยในแต่ละเขต</h3><div class="summary-card-sub">สีเข้มหมายถึงพบมาก คลิกตัวเลขเพื่อดูรายชื่อเสา</div><div class="matrix-wrap" id="summaryCauseMatrix"></div></article>
-              <article class="summary-card"><h3>ความครบถ้วนของข้อมูล</h3><div class="summary-card-sub">ตรวจว่ามีข้อมูลเพียงพอสำหรับค้นหาสาเหตุไฟดับหรือไม่</div><div class="quality-list" id="summaryDataQuality"></div><div class="quality-caption">ข้อเสนอแนะ: เพิ่มช่อง “สาเหตุที่ยืนยันแล้ว” ใน Excel เพื่อแยกสาเหตุจริงออกจากอาการและวิธีแก้ไข</div></article>
+              <article class="summary-card"><h3>ปัญหาที่คาดว่าทำให้ไฟดับ</h3><div class="summary-proxy-note">หมายเหตุ: เป็นการประเมินจากข้อมูลงานซ่อม ยังไม่ใช่สาเหตุที่ได้รับการยืนยัน</div><div class="summary-bar-list red" id="summaryCauses"></div></article>
+              <article class="summary-card"><h3>เขตที่มีเสาไฟดับซ้ำสูง</h3><div class="risk-list" id="summaryDistrictRisk"></div></article>
+              <article class="summary-card summary-span-2"><h3>จำนวนเหตุไฟดับรายเดือน</h3><div class="trend-chart" id="summaryTrend"></div><div class="trend-foot" id="summaryTrendFoot"></div></article>
+              <article class="summary-card"><h3>วิธีแก้ไขที่ใช้บ่อย</h3><div class="summary-bar-list green" id="summaryMethods"></div></article>
+              <article class="summary-card summary-span-2"><h3>ปัญหาที่พบบ่อยในแต่ละเขต</h3><div class="matrix-wrap" id="summaryCauseMatrix"></div></article>
+              <article class="summary-card"><h3>ความครบถ้วนของข้อมูล</h3><div class="quality-list" id="summaryDataQuality"></div><div class="quality-caption">ข้อเสนอแนะ: เพิ่มช่อง “สาเหตุที่ยืนยันแล้ว” ใน Excel เพื่อแยกสาเหตุจริงออกจากอาการและวิธีแก้ไข</div></article>
             </div>
           </div>
           <div class="analysis-detail-backdrop" id="analysisDetailBackdrop"></div>
